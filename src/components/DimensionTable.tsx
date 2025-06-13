@@ -1,0 +1,56 @@
+import { TOMDimension } from '../types/index.ts';
+
+export const initialTomDimensions: TOMDimension[] = [
+  { id: 1, name: 'Vision and Mission', category: 'STRATEGY', subDimension: null, currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
+  { id: 2, name: 'Data Principles', category: 'STRATEGY', subDimension: null, currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
+  { id: 3, name: 'Data Strategy Alignment', category: 'STRATEGY', subDimension: null, currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
+  { id: 4, name: 'Governance Framework', category: 'STRATEGY', subDimension: 'Governance', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
+  { id: 5, name: 'Risk Management', category: 'STRATEGY', subDimension: 'Governance', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
+  { id: 6, name: 'Compliance', category: 'STRATEGY', subDimension: 'Governance', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
+  { id: 7, name: 'Data Ethics', category: 'STRATEGY', subDimension: 'Governance', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
+  { id: 8, name: 'Value Definition & Attribution', category: 'STRATEGY', subDimension: null, currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
+  { id: 9, name: 'Data Products', category: 'IMPLEMENTATION', subDimension: null, currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
+  { id: 10, name: 'Data Product Development Lifecycle', category: 'IMPLEMENTATION', subDimension: 'Processes', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
+  { id: 11, name: 'Continuous Discovery', category: 'IMPLEMENTATION', subDimension: 'Processes', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
+  { id: 12, name: 'Data Quality Management', category: 'IMPLEMENTATION', subDimension: 'Processes', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
+  { id: 13, name: 'Metadata Management', category: 'IMPLEMENTATION', subDimension: 'Processes', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
+  { id: 14, name: 'Data Access and Sharing', category: 'IMPLEMENTATION', subDimension: 'Processes', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
+  { id: 15, name: 'Product Pipeline Management', category: 'IMPLEMENTATION', subDimension: 'Processes', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
+  { id: 16, name: 'Roles and Responsibilities', category: 'IMPLEMENTATION', subDimension: null, currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
+  { id: 17, name: 'Technology and Tools', category: 'IMPLEMENTATION', subDimension: null, currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
+  { id: 18, name: 'Support', category: 'SERVICE & VALUE DELIVERY', subDimension: null, currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
+  { id: 19, name: 'Communication & Stakeholder Engagement', category: 'SERVICE & VALUE DELIVERY', subDimension: null, currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
+  { id: 20, name: 'Attitudes and beliefs', category: 'SERVICE & VALUE DELIVERY', subDimension: 'Data Culture', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
+  { id: 21, name: 'Data Behaviours', category: 'SERVICE & VALUE DELIVERY', subDimension: 'Data Culture', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
+  { id: 22, name: 'Data Literacy', category: 'SERVICE & VALUE DELIVERY', subDimension: 'Data Culture', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
+  { id: 23, name: 'Capability Uplift', category: 'SERVICE & VALUE DELIVERY', subDimension: 'Data Culture', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
+  { id: 24, name: 'Value Realisation', category: 'SERVICE & VALUE DELIVERY', subDimension: null, currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 }
+];
+
+export const dimensionDescriptions: { [key: string]: string } = {
+  // Descriptions remain the same
+  'Vision and Mission': 'A clear and concise statement that defines the overall purpose and goals of the organisation\'s data activities. It should articulate the desired future state and how data will be used to achieve strategic objectives.',
+  'Data Principles': 'A set of guiding principles that define how data should be managed, used and shared within the organisation. These principles should be aligned with the organisation\'s values and ethical considerations.',
+  'Data Strategy Alignment': 'The extent to which the data strategy is aligned with the overall business strategy. This includes ensuring that data initiatives support key business goals and that data is used to drive decision-making across the organisation.',
+  'Governance Framework': 'A comprehensive framework that defines roles, responsibilities and processes for data governance. This includes policies, standards and procedures for data management, data quality, data security and data ethics.',
+  'Risk Management': 'A systematic process for identifying, assessing and mitigating data-related risks. This includes risks related to data security, data privacy, data quality and data compliance.',
+  'Compliance': 'Ensuring that the organisation\'s data activities comply with relevant regulations, laws and ethical standards.',
+  'Data Ethics': 'A set of ethical principles that guide the organisation\'s data activities. This includes considerations around fairness, transparency, accountability and respect for individual rights.',
+  'Value Definition & Attribution': 'A clear definition of how the organisation creates value from data and a model for attributing value to specific data initiatives. This helps to demonstrate the return on investment in data and to prioritise data projects.',
+  'Data Products': 'Data products are applications, tools, or services that leverage data to deliver value to users. This can include dashboards, reports, APIs and machine learning models.',
+  'Data Product Development Lifecycle': 'A defined process for developing and deploying data products. This typically includes stages such as ideation, design, development, testing, deployment and monitoring.',
+  'Continuous Discovery': 'An ongoing process of understanding user needs and identifying opportunities for new data products or improvements to existing ones. This involves gathering feedback, analysing user behaviour and conducting market research.',
+  'Data Quality Management': 'Processes and procedures for ensuring the accuracy, completeness, consistency and timeliness of data. This includes data profiling, data cleansing, data validation and data quality monitoring.',
+  'Metadata Management': 'The process of managing metadata, which is data that describes other data. This includes defining metadata standards, capturing metadata and making metadata accessible to users.',
+  'Data Access and Sharing': 'Policies and procedures for controlling access to data and enabling secure data sharing within and outside the organisation. This includes authentication, authorisation and data encryption.',
+  'Product Pipeline Management': 'Managing the pipeline of data products from ideation through to deployment and retirement. This includes prioritising initiatives, allocating resources and tracking progress.',
+  'Roles and Responsibilities': 'Clearly defined roles and responsibilities for data management, data governance and data product development. This includes roles such as data stewards, data engineers, data scientists and data analysts.',
+  'Technology and Tools': 'The technology infrastructure and tools used to support data management, data governance and data product development.',
+  'Support': 'Providing support to users of data products and services. This includes answering questions, resolving issues and providing training.',
+  'Communication & Stakeholder Engagement': 'Effectively communicating data initiatives and engaging with stakeholders across the organisation. This includes providing regular updates, soliciting feedback and building relationships.',
+  'Attitudes and beliefs': 'The shared attitudes, beliefs and values of individuals and teams with respect to the value of data.',
+  'Data Behaviours': 'The behaviours and practices of individuals and teams with respect to data. This includes behaviours such as data sharing, data quality awareness and data-driven decision-making.',
+  'Data Literacy': 'The level of data literacy within the organisation and the overall culture around data. This includes promoting data-driven decision-making, encouraging data sharing and fostering a culture of data curiosity.',
+  'Capability Uplift': 'Developing the data skills and capabilities of employees through training, mentoring and knowledge sharing. This helps to ensure that the organisation has the talent it needs to execute its data strategy.',
+  'Value Realisation': 'The process of capturing and measuring the value created from data initiatives. This includes tracking metrics such as cost savings, revenue growth and improved decision-making.'
+};
