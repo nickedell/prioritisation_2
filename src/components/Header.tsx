@@ -1,3 +1,5 @@
+// src/components/Header.tsx
+
 import React from 'react';
 
 interface HeaderProps {
@@ -5,15 +7,12 @@ interface HeaderProps {
     subtitle: string;
     darkMode: boolean;
     setDarkMode: (value: boolean) => void;
-    // We will add the import/export buttons here in a future step
 }
 
 const Header: React.FC<HeaderProps> = ({ title, subtitle, darkMode, setDarkMode }) => {
     return (
         <>
             <div className="flex justify-end items-center mb-4 space-x-4">
-                {/* For now, only the dark mode toggle is here. */}
-                {/* We can add Import/Export back in the next step. */}
                 <button
                     onClick={() => setDarkMode(!darkMode)}
                     className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${darkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}
