@@ -53,41 +53,6 @@ const DiagnosticPage = () => {
             }, 150);
         }
     };
-    
-    // Functions for this page's specific import/export needs
-    const handleDiagnosticExport = () => {
-        const headers = ['Dimension Name', 'Maturity Score'];
-        const csvData = Object.entries(scores);
-        const csvContent = [headers, ...csvData].map(row => row.map(field => `"${field}"`).join(',')).join('\n');
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute('download', 'maturity-diagnostic-scores.csv');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      };
-    
-    const handleDiagnosticImport = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const text = e.target?.result as string;
-            const rows = text.split('\n').slice(1);
-            rows.forEach(row => {
-                if (row.trim() === '') return;
-                const columns = row.trim().split(',');
-                const name = columns[0]?.replace(/"/g, '').trim();
-                const score = parseInt(columns[1]?.replace(/"/g, ''), 10);
-                if (name && !isNaN(score)) {
-                    updateScore(name, score);
-                }
-            });
-        };
-        reader.readAsText(file);
-        event.target.value = '';
-    };
 
     const tableHeaderClasses = `sticky top-0 p-3 text-left text-xs font-medium uppercase tracking-wider z-10 ${darkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-500'}`;
 
@@ -102,13 +67,7 @@ const DiagnosticPage = () => {
                         darkMode={darkMode}
                         setDarkMode={setDarkMode}
                         showDevTag={true}
-                        onExportClick={handleDiagnosticExport}
-                        onImportFileSelect={handleDiagnosticImport}
                     />
-                    
-                    {/* THIS IS THE NEW DEBUGGING LINE */}
-                    <p className="text-yellow-400 my-2">Items loaded from diagnosticData: {diagnosticData.length}</p>
-
                     <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700">
                         <button
                             onClick={() => setIsChartVisible(!isChartVisible)}
@@ -178,13 +137,4 @@ const DiagnosticPage = () => {
                 </div>
                 
                  <div className="flex justify-end mt-8">
-                    <Link to="/prioritisation" className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${darkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}>
-                        Proceed to Prioritisation Tool →
-                    </Link>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-export default DiagnosticPage;
+                    <Link to="/prioritisation" className={`px-3 py-2 rounded-lg text-sm font
