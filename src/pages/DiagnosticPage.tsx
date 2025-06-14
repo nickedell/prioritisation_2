@@ -1,24 +1,53 @@
 // src/pages/DiagnosticPage.tsx
 
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { diagnosticData } from '../constants/diagnostic.ts';
 import { MaturityContext } from '../context/MaturityContext.tsx';
+import RadarChartComponent from '../components/RadarChart.tsx'; // Import the new chart component
 
 const DiagnosticPage = () => {
     const maturityContext = useContext(MaturityContext);
 
     if (!maturityContext) {
-        return <div>Loading...</div>; // Or some other fallback
+        return <div>Loading...</div>;
     }
 
     const { scores, updateScore } = maturityContext;
 
-    // Group data by category for rendering
-    const groupedData = diagnosticData.reduce((acc, item) => {
+    // Group data by category for rendering the questions
+    const groupedData = useMemo(() => diagnosticData.reduce((acc, item) => {
         (acc[item.category] = acc[item.category] || []).push(item);
         return acc;
-    }, {} as Record<string, typeof diagnosticData>);
+    }, {} as Record<string, typeof diagnosticData>), []);
+
+
+    // NEW: Calculate average scores for the chart
+    const chartData = useMemo(() => {
+        const categoryScores: { [key: string]: { total: number, count: number } } = {};
+
+        // Initialize categories
+        Object.keys(groupedData).forEach(category => {
+            categoryScores[category] = { total: 0, count: 0 };
+        });
+
+        // Tally scores for each category
+        Object.entries(scores).forEach(([dimensionName, score]) => {
+            const item = diagnosticData.find(d => d.name === dimensionName);
+            if (item) {
+                categoryScores[item.category].total += score;
+                categoryScores[item.category].count += 1;
+            }
+        });
+        
+        // Calculate averages and format for the chart library
+        return Object.entries(categoryScores).map(([category, data]) => ({
+            subject: category,
+            score: data.count > 0 ? parseFloat((data.total / data.count).toFixed(2)) : 0,
+            fullMark: 5,
+        }));
+
+    }, [scores, groupedData]);
 
 
     return (
@@ -31,9 +60,13 @@ const DiagnosticPage = () => {
                     </Link>
                 </div>
 
-                {/* We will add the spider chart here in the next step */}
+                {/* UPDATE: The spider chart is now rendered here */}
+                <div className="p-4 bg-gray-800 rounded-lg mb-12">
+                     <h2 className="text-2xl font-bold mb-4 text-center">Category Maturity Overview</h2>
+                    <RadarChartComponent data={chartData} />
+                </div>
 
-                <div className="space-y-12 mt-12">
+                <div className="space-y-12">
                     {Object.entries(groupedData).map(([category, items]) => (
                         <div key={category}>
                             <h2 className="text-2xl font-bold border-b-2 border-gray-700 pb-2 mb-6">{category}</h2>
@@ -55,7 +88,7 @@ const DiagnosticPage = () => {
                                                                 value={score}
                                                                 checked={isSelected}
                                                                 onChange={() => updateScore(item.name, score)}
-                                                                className="hidden" // Hide radio, the whole div is clickable
+                                                                className="hidden"
                                                             />
                                                             <div className={`w-4 h-4 rounded-full border-2 mr-3 flex-shrink-0 ${isSelected ? 'bg-blue-400 border-blue-200' : 'border-gray-500'}`}></div>
                                                             <label className="text-sm cursor-pointer">
