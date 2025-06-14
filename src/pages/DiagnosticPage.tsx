@@ -99,7 +99,6 @@ const DiagnosticPage = () => {
                                         <tbody className="bg-gray-900">
                                             {items.map((item) => (
                                                 <tr key={item.name} className="border-t border-gray-700">
-                                                    {/* UPDATE: Added align-top to the table cells */}
                                                     <td className={`p-3 text-sm font-medium border-r border-gray-700 align-top ${darkMode ? 'text-white' : 'text-gray-900'}`}>{item.name}</td>
                                                     <td className={`p-3 text-sm border-r border-gray-700 align-top ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{item.description}</td>
                                                     {item.levels.map((levelText, index) => {
@@ -108,4 +107,32 @@ const DiagnosticPage = () => {
                                                         return (
                                                             <td
                                                                 key={score}
-                                                                className={`p-3 border-r text-
+                                                                // UPDATE: This className string is now complete and correct.
+                                                                className={`p-3 border-r text-sm text-gray-300 border-gray-700 cursor-pointer transition-colors border-b-4 text-left align-top ${isSelected ? 'border-b-purple-500 bg-gray-700' : 'border-b-transparent hover:bg-gray-800'}`}
+                                                                onClick={() => updateScore(item.name, score)}
+                                                            >
+                                                                {levelText}
+                                                            </td>
+                                                        );
+                                                    })}
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+                
+                 <div className="flex justify-end mt-8">
+                    <Link to="/prioritisation" className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${darkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border-gray-600' : 'bg-white text-gray-700 hover:bg-gray-100 border-gray-300'}`}>
+                        Proceed to Prioritisation Tool →
+                    </Link>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default DiagnosticPage;
