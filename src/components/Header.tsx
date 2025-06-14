@@ -1,5 +1,3 @@
-// src/components/Header.tsx
-
 import React from 'react';
 
 interface HeaderProps {
@@ -7,9 +5,10 @@ interface HeaderProps {
     subtitle: string;
     darkMode: boolean;
     setDarkMode: (value: boolean) => void;
+    showDevTag?: boolean; // New optional prop
 }
 
-const Header: React.FC<HeaderProps> = ({ title, subtitle, darkMode, setDarkMode }) => {
+const Header: React.FC<HeaderProps> = ({ title, subtitle, darkMode, setDarkMode, showDevTag }) => {
     return (
         <>
             <div className="flex justify-end items-center mb-4 space-x-4">
@@ -26,6 +25,12 @@ const Header: React.FC<HeaderProps> = ({ title, subtitle, darkMode, setDarkMode 
             <div className="mb-8">
                 <div className="flex items-center gap-4">
                     <h1 className={`text-3xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{title}</h1>
+                    {/* Conditionally render the #dev tag based on the new prop */}
+                    {showDevTag && (
+                        <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full -translate-y-1">
+                            #dev
+                        </span>
+                    )}
                 </div>
                 <p className={`mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{subtitle}</p>
             </div>

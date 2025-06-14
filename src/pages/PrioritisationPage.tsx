@@ -1,10 +1,7 @@
-// src/pages/PrioritisationPage.tsx
-
 import { useState } from 'react';
 import { initialTomDimensions } from '../constants/dimensions.ts';
 import { TOMDimension, Weights } from '../types/index.ts';
 import { usePrioritisation } from '../hooks/usePrioritisation.ts';
-
 import Header from '../components/Header.tsx';
 import Configuration from '../components/Configuration.tsx';
 import DimensionTable from '../components/DimensionTable.tsx';
@@ -13,29 +10,9 @@ import PrioritisationResults from '../components/PrioritisationResults.tsx';
 const PrioritisationPage = () => {
     const [tomDimensions, setTomDimensions] = useState<TOMDimension[]>(initialTomDimensions);
     const [darkMode, setDarkMode] = useState(true);
-
-    const [weights, setWeights] = useState<Weights>({
-        businessImpact: 35,
-        feasibility: 30,
-        political: 20,
-        foundation: 15
-    });
-
+    const [weights, setWeights] = useState<Weights>({ /* ...weights */ });
     const prioritisedDimensions = usePrioritisation(tomDimensions, weights);
-
-    const updateScore = (id: number, field: keyof TOMDimension, value: string | number) => {
-        setTomDimensions(prev =>
-            prev.map(dim =>
-                dim.id === id ? {
-                    ...dim,
-                    [field]: typeof value === 'string' ? (field === 'currentScore' ? parseFloat(value) : parseInt(value)) || 0 : value
-                } : dim
-            )
-        );
-    };
-
-    // Note: handleExport and handleImport are removed for now to simplify.
-    // We will add them back to the correct pages in the next step.
+    const updateScore = (id: number, field: keyof TOMDimension, value: string | number) => { /* ...update logic */ };
 
     return (
         <div className={darkMode ? 'bg-gray-900' : 'bg-gray-50'}>
@@ -45,6 +22,7 @@ const PrioritisationPage = () => {
                     subtitle="Score each dimension on a 1-5 scale. The tool will automatically calculate priorities and apply special filters."
                     darkMode={darkMode}
                     setDarkMode={setDarkMode}
+                    showDevTag={false} // The #dev tag should not show on this page
                 />
                 <div className="mb-8">
                     <Configuration

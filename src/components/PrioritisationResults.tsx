@@ -42,7 +42,7 @@ const PrioritisationResults: React.FC<PrioritisationResultsProps> = ({ prioritis
         <>
             {/* UPDATE: Restoring the mb-4 (margin-bottom) to create space below the title */}
             <div className="flex items-center justify-between mb-4">
-                <h2 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>Prioritised Results</h2>
+                <h2 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>Results</h2>
             </div>
             <div className={`max-h-[calc(100vh-12rem)] overflow-y-auto space-y-2 rounded-lg p-4 border ${darkMode ? 'border-gray-700' : 'border-gray-300'}`}>
                 {prioritisedDimensions.map((dim, index) => (
