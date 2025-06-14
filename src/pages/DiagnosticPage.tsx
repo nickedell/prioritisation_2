@@ -1,10 +1,8 @@
-// src/pages/DiagnosticPage.tsx
-
 import React, { useContext, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { diagnosticData } from '../constants/diagnostic.ts';
 import { MaturityContext } from '../context/MaturityContext.tsx';
-import RadarChartComponent from '../components/RadarChart.tsx'; // Import the new chart component
+import RadarChartComponent from '../components/RadarChart.tsx';
 
 const DiagnosticPage = () => {
     const maturityContext = useContext(MaturityContext);
@@ -15,39 +13,44 @@ const DiagnosticPage = () => {
 
     const { scores, updateScore } = maturityContext;
 
-    // Group data by category for rendering the questions
     const groupedData = useMemo(() => diagnosticData.reduce((acc, item) => {
         (acc[item.category] = acc[item.category] || []).push(item);
         return acc;
     }, {} as Record<string, typeof diagnosticData>), []);
 
-
-    // NEW: Calculate average scores for the chart
+    // UPDATE: New logic to group by sub-dimension for the chart
     const chartData = useMemo(() => {
-        const categoryScores: { [key: string]: { total: number, count: number } } = {};
+        const subDimensionScores: { [key: string]: { total: number, count: number } } = {};
 
-        // Initialize categories
-        Object.keys(groupedData).forEach(category => {
-            categoryScores[category] = { total: 0, count: 0 };
+        // Helper to get the base sub-dimension name (e.g., "Governance" from "Governance: Risk Management")
+        const getBaseSubDimension = (name: string) => {
+            return name.includes(':') ? name.split(':')[0] : name;
+        };
+        
+        // Find all unique base sub-dimensions to initialize them
+        const uniqueSubDimensions = [...new Set(diagnosticData.map(item => getBaseSubDimension(item.name)))];
+        uniqueSubDimensions.forEach(subDim => {
+            subDimensionScores[subDim] = { total: 0, count: 0 };
         });
 
-        // Tally scores for each category
+        // Tally scores for each base sub-dimension
         Object.entries(scores).forEach(([dimensionName, score]) => {
             const item = diagnosticData.find(d => d.name === dimensionName);
             if (item) {
-                categoryScores[item.category].total += score;
-                categoryScores[item.category].count += 1;
+                const baseSubDim = getBaseSubDimension(item.name);
+                subDimensionScores[baseSubDim].total += score;
+                subDimensionScores[baseSubDim].count += 1;
             }
         });
         
         // Calculate averages and format for the chart library
-        return Object.entries(categoryScores).map(([category, data]) => ({
-            subject: category,
+        return Object.entries(subDimensionScores).map(([subDim, data]) => ({
+            subject: subDim,
             score: data.count > 0 ? parseFloat((data.total / data.count).toFixed(2)) : 0,
             fullMark: 5,
         }));
 
-    }, [scores, groupedData]);
+    }, [scores]);
 
 
     return (
@@ -60,9 +63,8 @@ const DiagnosticPage = () => {
                     </Link>
                 </div>
 
-                {/* UPDATE: The spider chart is now rendered here */}
                 <div className="p-4 bg-gray-800 rounded-lg mb-12">
-                     <h2 className="text-2xl font-bold mb-4 text-center">Category Maturity Overview</h2>
+                     <h2 className="text-2xl font-bold mb-4 text-center">Sub-Dimension Maturity Overview</h2>
                     <RadarChartComponent data={chartData} />
                 </div>
 
