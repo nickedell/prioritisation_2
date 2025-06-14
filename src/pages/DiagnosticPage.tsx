@@ -107,7 +107,6 @@ const DiagnosticPage = () => {
                                                         return (
                                                             <td
                                                                 key={score}
-                                                                // UPDATE: This className string is now complete and correct.
                                                                 className={`p-3 border-r text-sm text-gray-300 border-gray-700 cursor-pointer transition-colors border-b-4 text-left align-top ${isSelected ? 'border-b-purple-500 bg-gray-700' : 'border-b-transparent hover:bg-gray-800'}`}
                                                                 onClick={() => updateScore(item.name, score)}
                                                             >
@@ -126,7 +125,7 @@ const DiagnosticPage = () => {
                 </div>
                 
                  <div className="flex justify-end mt-8">
-                    <Link to="/prioritisation" className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${darkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border-gray-600' : 'bg-white text-gray-700 hover:bg-gray-100 border-gray-300'}`}>
+                    <Link to="/prioritisation" className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${darkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}>
                         Proceed to Prioritisation Tool →
                     </Link>
                 </div>
