@@ -43,7 +43,6 @@ const DiagnosticPage = () => {
         }));
     }, [scores]);
 
-    // UPDATE: We are adding the sticky class and background color to the header classes again
     const tableHeaderClasses = `sticky top-0 p-3 text-left text-xs font-medium uppercase tracking-wider z-10 ${darkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-500'}`;
 
     return (
@@ -85,8 +84,8 @@ const DiagnosticPage = () => {
                                 {openCategory === category ? <ChevronDown /> : <ChevronRight />}
                             </button>
                             {openCategory === category && (
-                                // UPDATE: This div is now a scrolling container
-                                <div className="p-1 border-t border-gray-700 max-h-[70vh] overflow-y-auto">
+                                // UPDATE: Changed max-h-[70vh] to max-h-[500px] to force a scrollbar
+                                <div className="p-1 border-t border-gray-700 max-h-[500px] overflow-y-auto">
                                     <table className="w-full">
                                         <thead>
                                             <tr>
