@@ -8,7 +8,7 @@ import Header from '../components/Header.tsx';
 
 const DiagnosticPage = () => {
     const maturityContext = useContext(MaturityContext);
-    const [openCategory, setOpenCategory] = useState('STRATEGY');
+    const [openCategory, setOpenCategory] = useState('');
     const [darkMode, setDarkMode] = useState(true);
     const [isChartVisible, setIsChartVisible] = useState(true);
 
