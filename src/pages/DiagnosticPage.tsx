@@ -48,7 +48,6 @@ const DiagnosticPage = () => {
         <div className={darkMode ? 'bg-gray-900' : 'bg-gray-50'}>
             <div className={`max-w-7xl mx-auto p-6 min-h-screen ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>
                 
-                {/* UPDATE: New sticky container for the entire header section */}
                 <div className={`sticky top-0 z-40 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'} py-4`}>
                     <Header
                         title="Maturity Diagnostic"
@@ -57,9 +56,19 @@ const DiagnosticPage = () => {
                         setDarkMode={setDarkMode}
                         showDevTag={true}
                     />
-                    {/* The chart panel is now inside the sticky container */}
-                    <div className="p-4 bg-gray-800 rounded-lg shadow-lg border border-gray-700">
-                        <RadarChartComponent data={chartData} />
+                    <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700">
+                        <button
+                            onClick={() => setIsChartVisible(!isChartVisible)}
+                            className="w-full flex justify-between items-center p-4 text-left text-lg font-semibold"
+                        >
+                            <span>Maturity Overview</span>
+                            {isChartVisible ? <ChevronDown /> : <ChevronRight />}
+                        </button>
+                        {isChartVisible && (
+                            <div className="p-4 border-t border-gray-700">
+                                <RadarChartComponent data={chartData} />
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -90,39 +99,13 @@ const DiagnosticPage = () => {
                                         <tbody className="bg-gray-900">
                                             {items.map((item) => (
                                                 <tr key={item.name} className="border-t border-gray-700">
-                                                    <td className={`p-3 text-sm font-medium border-r border-gray-700 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{item.name}</td>
-                                                    <td className={`p-3 text-sm border-r border-gray-700 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{item.description}</td>
+                                                    {/* UPDATE: Added align-top to the table cells */}
+                                                    <td className={`p-3 text-sm font-medium border-r border-gray-700 align-top ${darkMode ? 'text-white' : 'text-gray-900'}`}>{item.name}</td>
+                                                    <td className={`p-3 text-sm border-r border-gray-700 align-top ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{item.description}</td>
                                                     {item.levels.map((levelText, index) => {
                                                         const score = index + 1;
                                                         const isSelected = scores[item.name] === score;
                                                         return (
                                                             <td
                                                                 key={score}
-                                                                className={`p-3 border-r text-sm text-gray-300 border-gray-700 cursor-pointer transition-colors border-b-4 ${isSelected ? 'border-b-purple-500 bg-gray-700' : 'border-b-transparent hover:bg-gray-800'}`}
-                                                                onClick={() => updateScore(item.name, score)}
-                                                            >
-                                                                {levelText}
-                                                            </td>
-                                                        );
-                                                    })}
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-                
-                 <div className="flex justify-end mt-8">
-                    <Link to="/prioritisation" className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${darkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}>
-                        Proceed to Prioritisation Tool →
-                    </Link>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-export default DiagnosticPage;
+                                                                className={`p-3 border-r text-
