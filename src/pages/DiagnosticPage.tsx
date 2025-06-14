@@ -47,19 +47,23 @@ const DiagnosticPage = () => {
     return (
         <div className={darkMode ? 'bg-gray-900' : 'bg-gray-50'}>
             <div className={`max-w-7xl mx-auto p-6 min-h-screen ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>
-                <Header
-                    title="Maturity Diagnostic"
-                    subtitle="Select the cell that best fits your organisation's current state for each dimension."
-                    darkMode={darkMode}
-                    setDarkMode={setDarkMode}
-                    showDevTag={true}
-                />
-
-                <div className="sticky top-8 z-40 p-4 bg-gray-800 rounded-lg mb-12 shadow-lg border border-gray-700">
-                    <RadarChartComponent data={chartData} />
+                
+                {/* UPDATE: New sticky container for the entire header section */}
+                <div className={`sticky top-0 z-40 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'} py-4`}>
+                    <Header
+                        title="Maturity Diagnostic"
+                        subtitle="Select the cell that best fits your organisation's current state for each dimension."
+                        darkMode={darkMode}
+                        setDarkMode={setDarkMode}
+                        showDevTag={true}
+                    />
+                    {/* The chart panel is now inside the sticky container */}
+                    <div className="p-4 bg-gray-800 rounded-lg shadow-lg border border-gray-700">
+                        <RadarChartComponent data={chartData} />
+                    </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-4 mt-8">
                     {Object.entries(groupedData).map(([category, items]) => (
                         <div key={category} className="bg-gray-800 rounded-lg border border-gray-700">
                             <button
