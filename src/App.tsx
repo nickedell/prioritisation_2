@@ -56,9 +56,9 @@ const App = () => {
     const reader = new FileReader();
     reader.onload = (e) => {
         const text = e.target?.result as string;
-        const rows = text.split('\n').slice(1); // Skip header row
+        const rows = text.split('\n').slice(1); 
 
-        const newDimensions = tomDimensions.map(d => ({...d})); // Create a deep copy
+        const newDimensions = tomDimensions.map(d => ({...d}));
 
         const headerRow = text.split('\n')[0].split(',').map(h => h.replace(/"/g, '').trim());
         const nameIndex = headerRow.indexOf('TOM Dimension');
@@ -111,6 +111,8 @@ const App = () => {
         </div>
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1">
+            {/* UPDATE: Added the h2 title back here for consistent alignment */}
+            <h2 className={`text-xl font-semibold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Input Scores</h2>
             <div className="overflow-x-auto">
               <DimensionTable 
                 tomDimensions={tomDimensions} 

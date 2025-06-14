@@ -58,15 +58,10 @@ const DimensionTable: React.FC<DimensionTableProps> = ({ tomDimensions, updateSc
         </tr>
     );
 
-    // UPDATE: The top offset is adjusted to the new height of the caption.
-    const headerClasses = `sticky top-[44px] z-10 border p-3 text-center ${darkMode ? 'bg-gray-800 border-gray-600 text-gray-200' : 'bg-gray-100 border-gray-300 text-gray-900'}`;
+    const headerClasses = `border p-3 text-center ${darkMode ? 'bg-gray-800 border-gray-600 text-gray-200' : 'bg-gray-100 border-gray-300 text-gray-900'}`;
 
     return (
         <table className={`w-full border-collapse border ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
-            {/* UPDATE: Changed padding from p-4 to px-4 pt-4 to remove bottom padding and close the gap. */}
-            <caption className={`sticky top-0 z-20 px-4 pt-4 text-xl font-semibold text-left ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
-                Input Scores
-            </caption>
             <thead>
                 <tr>
                     <th className={`${headerClasses} text-left`}>TOM Dimension</th>
