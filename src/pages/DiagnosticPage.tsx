@@ -18,32 +18,29 @@ const DiagnosticPage = () => {
         return acc;
     }, {} as Record<string, typeof diagnosticData>), []);
 
-    // UPDATE: New logic to group by sub-dimension for the chart
     const chartData = useMemo(() => {
         const subDimensionScores: { [key: string]: { total: number, count: number } } = {};
 
-        // Helper to get the base sub-dimension name (e.g., "Governance" from "Governance: Risk Management")
         const getBaseSubDimension = (name: string) => {
             return name.includes(':') ? name.split(':')[0] : name;
         };
         
-        // Find all unique base sub-dimensions to initialize them
         const uniqueSubDimensions = [...new Set(diagnosticData.map(item => getBaseSubDimension(item.name)))];
         uniqueSubDimensions.forEach(subDim => {
             subDimensionScores[subDim] = { total: 0, count: 0 };
         });
 
-        // Tally scores for each base sub-dimension
         Object.entries(scores).forEach(([dimensionName, score]) => {
             const item = diagnosticData.find(d => d.name === dimensionName);
             if (item) {
                 const baseSubDim = getBaseSubDimension(item.name);
-                subDimensionScores[baseSubDim].total += score;
-                subDimensionScores[baseSubDim].count += 1;
+                if (subDimensionScores[baseSubDim]) {
+                    subDimensionScores[baseSubDim].total += score;
+                    subDimensionScores[baseSubDim].count += 1;
+                }
             }
         });
         
-        // Calculate averages and format for the chart library
         return Object.entries(subDimensionScores).map(([subDim, data]) => ({
             subject: subDim,
             score: data.count > 0 ? parseFloat((data.total / data.count).toFixed(2)) : 0,
@@ -63,12 +60,13 @@ const DiagnosticPage = () => {
                     </Link>
                 </div>
 
-                <div className="p-4 bg-gray-800 rounded-lg mb-12">
+                {/* UPDATE: Added sticky positioning classes here */}
+                <div className="sticky top-8 z-40 p-4 bg-gray-800 rounded-lg mb-12 shadow-lg">
                      <h2 className="text-2xl font-bold mb-4 text-center">Sub-Dimension Maturity Overview</h2>
                     <RadarChartComponent data={chartData} />
                 </div>
 
-                <div className="space-y-12">
+                <div className="space-y-12 mt-12">
                     {Object.entries(groupedData).map(([category, items]) => (
                         <div key={category}>
                             <h2 className="text-2xl font-bold border-b-2 border-gray-700 pb-2 mb-6">{category}</h2>
