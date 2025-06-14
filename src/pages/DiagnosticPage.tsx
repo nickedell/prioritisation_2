@@ -43,7 +43,8 @@ const DiagnosticPage = () => {
         }));
     }, [scores]);
 
-    const tableHeaderClasses = `p-3 text-left text-xs font-medium uppercase tracking-wider ${darkMode ? 'text-gray-400' : 'text-gray-500'}`;
+    // UPDATE: We are adding the sticky class and background color to the header classes again
+    const tableHeaderClasses = `sticky top-0 p-3 text-left text-xs font-medium uppercase tracking-wider z-10 ${darkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-500'}`;
 
     return (
         <div className={darkMode ? 'bg-gray-900' : 'bg-gray-50'}>
@@ -84,7 +85,8 @@ const DiagnosticPage = () => {
                                 {openCategory === category ? <ChevronDown /> : <ChevronRight />}
                             </button>
                             {openCategory === category && (
-                                <div className="p-1 border-t border-gray-700">
+                                // UPDATE: This div is now a scrolling container
+                                <div className="p-1 border-t border-gray-700 max-h-[70vh] overflow-y-auto">
                                     <table className="w-full">
                                         <thead>
                                             <tr>
@@ -100,7 +102,6 @@ const DiagnosticPage = () => {
                                         <tbody className="bg-gray-900">
                                             {items.map((item) => (
                                                 <tr key={item.name} className="border-t border-gray-700">
-                                                    {/* UPDATE: This is the line with the corrected className */}
                                                     <td className={`p-3 text-sm font-medium border-r border-gray-700 align-top ${darkMode ? 'text-white' : 'text-gray-900'}`}>{item.name}</td>
                                                     <td className={`p-3 text-sm border-r border-gray-700 align-top ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{item.description}</td>
                                                     {item.levels.map((levelText, index) => {
