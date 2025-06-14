@@ -10,8 +10,8 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ darkMode, setDarkMode, onExportClick, onImportFileSelect }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Read the branch name from Netlify's environment variables
-    const branch = import.meta.env.VITE_BRANCH || import.meta.env.BRANCH;
+    // UPDATE: Read the new, correctly prefixed environment variable
+    const branch = import.meta.env.VITE_GIT_BRANCH;
 
     const handleImportClick = () => {
         fileInputRef.current?.click();
@@ -52,7 +52,7 @@ const Header: React.FC<HeaderProps> = ({ darkMode, setDarkMode, onExportClick, o
             <div className="mb-8">
                 <div className="flex items-center gap-4">
                     <h1 className={`text-3xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>TOM Prioritisation Tool</h1>
-                    {/* NEW: Conditionally render the #dev tag */}
+                    {/* This condition will now work correctly */}
                     {branch === 'dev' && (
                         <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full -translate-y-1">
                             #dev

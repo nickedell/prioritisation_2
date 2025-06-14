@@ -1,6 +1,7 @@
 [build]
-  # This command runs the "build" script from your package.json
   command = "npm run build"
-
-  # This is the directory that your build command will create
   publish = "dist"
+
+[build.environment]
+  # Expose the branch name to Vite under a VITE_ prefixed variable
+  VITE_GIT_BRANCH = "$BRANCH"
