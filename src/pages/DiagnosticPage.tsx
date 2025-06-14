@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState, useRef } from 'react'; // UPDATE: Added useRef
 import { Link } from 'react-router-dom';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { diagnosticData } from '../constants/diagnostic.ts';
@@ -11,6 +11,8 @@ const DiagnosticPage = () => {
     const [openCategory, setOpenCategory] = useState('');
     const [darkMode, setDarkMode] = useState(true);
     const [isChartVisible, setIsChartVisible] = useState(true);
+    // UPDATE: This ref is used to scroll the accordion section into view.
+    const accordionContainerRef = useRef<HTMLDivElement>(null);
 
     if (!maturityContext) { return <div>Loading...</div>; }
 
@@ -29,7 +31,6 @@ const DiagnosticPage = () => {
         
         Object.entries(scores || {}).forEach(([dimensionName, score]) => {
             const item = diagnosticData.find(d => d.name === dimensionName);
-            // UPDATE: Added the missing curly braces for the if statement block
             if (item) {
                 const baseSubDim = getBaseSubDimension(item.name);
                 if (subDimensionScores[baseSubDim]) {
@@ -51,9 +52,9 @@ const DiagnosticPage = () => {
 
         if (isOpeningNewCategory) {
             setTimeout(() => {
-                const element = document.getElementById(`category-${category}`);
-                element?.scrollIntoView({ behavior: "smooth", block: "start" });
-            }, 100);
+                // We use the ref here to scroll the element into view
+                accordionContainerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 150);
         }
     };
 
@@ -87,6 +88,7 @@ const DiagnosticPage = () => {
                     </div>
                 </div>
 
+                {/* UPDATE: The ref is attached to this container div */}
                 <div ref={accordionContainerRef} className="space-y-4 mt-8 scroll-mt-48">
                     {Object.entries(groupedData).map(([category, items]) => (
                         <div key={category} id={`category-${category}`} className="bg-gray-800 rounded-lg border border-gray-700">
