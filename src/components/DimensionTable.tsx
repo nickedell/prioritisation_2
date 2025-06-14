@@ -1,56 +1,109 @@
+import React, { useState, useMemo } from 'react';
 import { TOMDimension } from '../types/index.ts';
+import { dimensionDescriptions } from '../constants/dimensions.ts';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 
-export const initialTomDimensions: TOMDimension[] = [
-  { id: 1, name: 'Vision and Mission', category: 'STRATEGY', subDimension: null, currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
-  { id: 2, name: 'Data Principles', category: 'STRATEGY', subDimension: null, currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
-  { id: 3, name: 'Data Strategy Alignment', category: 'STRATEGY', subDimension: null, currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
-  { id: 4, name: 'Governance Framework', category: 'STRATEGY', subDimension: 'Governance', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
-  { id: 5, name: 'Risk Management', category: 'STRATEGY', subDimension: 'Governance', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
-  { id: 6, name: 'Compliance', category: 'STRATEGY', subDimension: 'Governance', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
-  { id: 7, name: 'Data Ethics', category: 'STRATEGY', subDimension: 'Governance', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
-  { id: 8, name: 'Value Definition & Attribution', category: 'STRATEGY', subDimension: null, currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
-  { id: 9, name: 'Data Products', category: 'IMPLEMENTATION', subDimension: null, currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
-  { id: 10, name: 'Data Product Development Lifecycle', category: 'IMPLEMENTATION', subDimension: 'Processes', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
-  { id: 11, name: 'Continuous Discovery', category: 'IMPLEMENTATION', subDimension: 'Processes', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
-  { id: 12, name: 'Data Quality Management', category: 'IMPLEMENTATION', subDimension: 'Processes', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
-  { id: 13, name: 'Metadata Management', category: 'IMPLEMENTATION', subDimension: 'Processes', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
-  { id: 14, name: 'Data Access and Sharing', category: 'IMPLEMENTATION', subDimension: 'Processes', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
-  { id: 15, name: 'Product Pipeline Management', category: 'IMPLEMENTATION', subDimension: 'Processes', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
-  { id: 16, name: 'Roles and Responsibilities', category: 'IMPLEMENTATION', subDimension: null, currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
-  { id: 17, name: 'Technology and Tools', category: 'IMPLEMENTATION', subDimension: null, currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
-  { id: 18, name: 'Support', category: 'SERVICE & VALUE DELIVERY', subDimension: null, currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
-  { id: 19, name: 'Communication & Stakeholder Engagement', category: 'SERVICE & VALUE DELIVERY', subDimension: null, currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
-  { id: 20, name: 'Attitudes and beliefs', category: 'SERVICE & VALUE DELIVERY', subDimension: 'Data Culture', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
-  { id: 21, name: 'Data Behaviours', category: 'SERVICE & VALUE DELIVERY', subDimension: 'Data Culture', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
-  { id: 22, name: 'Data Literacy', category: 'SERVICE & VALUE DELIVERY', subDimension: 'Data Culture', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
-  { id: 23, name: 'Capability Uplift', category: 'SERVICE & VALUE DELIVERY', subDimension: 'Data Culture', currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 },
-  { id: 24, name: 'Value Realisation', category: 'SERVICE & VALUE DELIVERY', subDimension: null, currentScore: 0, businessImpact: 0, feasibility: 0, political: 0, foundation: 0 }
-];
+interface DimensionTableProps {
+    tomDimensions: TOMDimension[];
+    updateScore: (id: number, field: keyof TOMDimension, value: string) => void;
+    darkMode: boolean;
+}
 
-export const dimensionDescriptions: { [key: string]: string } = {
-  // Descriptions remain the same
-  'Vision and Mission': 'A clear and concise statement that defines the overall purpose and goals of the organisation\'s data activities. It should articulate the desired future state and how data will be used to achieve strategic objectives.',
-  'Data Principles': 'A set of guiding principles that define how data should be managed, used and shared within the organisation. These principles should be aligned with the organisation\'s values and ethical considerations.',
-  'Data Strategy Alignment': 'The extent to which the data strategy is aligned with the overall business strategy. This includes ensuring that data initiatives support key business goals and that data is used to drive decision-making across the organisation.',
-  'Governance Framework': 'A comprehensive framework that defines roles, responsibilities and processes for data governance. This includes policies, standards and procedures for data management, data quality, data security and data ethics.',
-  'Risk Management': 'A systematic process for identifying, assessing and mitigating data-related risks. This includes risks related to data security, data privacy, data quality and data compliance.',
-  'Compliance': 'Ensuring that the organisation\'s data activities comply with relevant regulations, laws and ethical standards.',
-  'Data Ethics': 'A set of ethical principles that guide the organisation\'s data activities. This includes considerations around fairness, transparency, accountability and respect for individual rights.',
-  'Value Definition & Attribution': 'A clear definition of how the organisation creates value from data and a model for attributing value to specific data initiatives. This helps to demonstrate the return on investment in data and to prioritise data projects.',
-  'Data Products': 'Data products are applications, tools, or services that leverage data to deliver value to users. This can include dashboards, reports, APIs and machine learning models.',
-  'Data Product Development Lifecycle': 'A defined process for developing and deploying data products. This typically includes stages such as ideation, design, development, testing, deployment and monitoring.',
-  'Continuous Discovery': 'An ongoing process of understanding user needs and identifying opportunities for new data products or improvements to existing ones. This involves gathering feedback, analysing user behaviour and conducting market research.',
-  'Data Quality Management': 'Processes and procedures for ensuring the accuracy, completeness, consistency and timeliness of data. This includes data profiling, data cleansing, data validation and data quality monitoring.',
-  'Metadata Management': 'The process of managing metadata, which is data that describes other data. This includes defining metadata standards, capturing metadata and making metadata accessible to users.',
-  'Data Access and Sharing': 'Policies and procedures for controlling access to data and enabling secure data sharing within and outside the organisation. This includes authentication, authorisation and data encryption.',
-  'Product Pipeline Management': 'Managing the pipeline of data products from ideation through to deployment and retirement. This includes prioritising initiatives, allocating resources and tracking progress.',
-  'Roles and Responsibilities': 'Clearly defined roles and responsibilities for data management, data governance and data product development. This includes roles such as data stewards, data engineers, data scientists and data analysts.',
-  'Technology and Tools': 'The technology infrastructure and tools used to support data management, data governance and data product development.',
-  'Support': 'Providing support to users of data products and services. This includes answering questions, resolving issues and providing training.',
-  'Communication & Stakeholder Engagement': 'Effectively communicating data initiatives and engaging with stakeholders across the organisation. This includes providing regular updates, soliciting feedback and building relationships.',
-  'Attitudes and beliefs': 'The shared attitudes, beliefs and values of individuals and teams with respect to the value of data.',
-  'Data Behaviours': 'The behaviours and practices of individuals and teams with respect to data. This includes behaviours such as data sharing, data quality awareness and data-driven decision-making.',
-  'Data Literacy': 'The level of data literacy within the organisation and the overall culture around data. This includes promoting data-driven decision-making, encouraging data sharing and fostering a culture of data curiosity.',
-  'Capability Uplift': 'Developing the data skills and capabilities of employees through training, mentoring and knowledge sharing. This helps to ensure that the organisation has the talent it needs to execute its data strategy.',
-  'Value Realisation': 'The process of capturing and measuring the value created from data initiatives. This includes tracking metrics such as cost savings, revenue growth and improved decision-making.'
+const DimensionTable: React.FC<DimensionTableProps> = ({ tomDimensions, updateScore, darkMode }) => {
+    const [expandedCategories, setExpandedCategories] = useState<{ [key: string]: boolean }>({
+        'STRATEGY': true, 'IMPLEMENTATION': true, 'SERVICE & VALUE DELIVERY': true
+    });
+    const [expandedSubDimensions, setExpandedSubDimensions] = useState<{ [key: string]: boolean }>({
+        'Governance': true, 'Processes': true, 'Data Culture': true
+    });
+    const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
+
+    const toggleCategory = (category: string) => setExpandedCategories(prev => ({ ...prev, [category]: !prev[category] }));
+    const toggleSubDimension = (subDim: string) => setExpandedSubDimensions(prev => ({ ...prev, [subDim]: !prev[subDim] }));
+
+    const groupedDimensions = useMemo(() => {
+        const groups: { [category: string]: { [subGroup: string]: TOMDimension[] } } = {};
+        tomDimensions.forEach(dim => {
+            if (!groups[dim.category]) groups[dim.category] = {};
+            const subKey = dim.subDimension || '_main';
+            if (!groups[dim.category][subKey]) groups[dim.category][subKey] = [];
+            groups[dim.category][subKey].push(dim);
+        });
+        return groups;
+    }, [tomDimensions]);
+
+    const renderDimensionRow = (dim: TOMDimension, isSubItem = false) => (
+        <tr key={dim.id} className={`${isSubItem ? (darkMode ? 'bg-gray-750' : 'bg-gray-50') : ''}`}>
+            <td className={`border ${darkMode ? 'border-gray-600' : 'border-gray-300'} p-3 ${isSubItem ? 'pl-8 text-sm' : 'font-medium'} ${darkMode ? (isSubItem ? 'text-gray-300' : 'text-gray-200') : (isSubItem ? 'text-gray-600' : 'text-gray-900')} relative`}>
+                {isSubItem && <span className={`mr-2 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>↳</span>}
+                <span className="cursor-help relative" onMouseEnter={() => setActiveTooltip(`${dim.id}-${dim.name}`)} onMouseLeave={() => setActiveTooltip(null)}>
+                    {dim.name}
+                    {activeTooltip === `${dim.id}-${dim.name}` && dimensionDescriptions[dim.name] && (
+                        <div className={`absolute z-50 p-3 rounded-lg shadow-lg border text-sm max-w-2xl left-0 top-full mt-1 ${darkMode ? 'bg-gray-800 border-gray-600 text-gray-200' : 'bg-white border-gray-300 text-gray-800'}`}>
+                            {dimensionDescriptions[dim.name]}
+                        </div>
+                    )}
+                </span>
+            </td>
+            <td className={`border ${darkMode ? 'border-gray-600' : 'border-gray-300'} p-3 text-center`}>
+                <input type="number" value={dim.currentScore} onChange={(e) => updateScore(dim.id, 'currentScore', e.target.value)} className={`w-16 p-1 border rounded text-center font-semibold ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`} min="0" max="5" step="0.1" />
+            </td>
+            {['businessImpact', 'feasibility', 'political', 'foundation'].map(field => (
+                <td key={field} className={`border ${darkMode ? 'border-gray-600' : 'border-gray-300'} p-3 text-center`}>
+                    <select value={dim[field as keyof TOMDimension] as number} onChange={(e) => updateScore(dim.id, field as keyof TOMDimension, e.target.value)} className={`w-16 p-1 border rounded ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}>
+                        <option value="0">-</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                    </select>
+                </td>
+            ))}
+        </tr>
+    );
+
+    const headerClasses = `sticky top-[68px] z-10 border p-3 text-center ${darkMode ? 'bg-gray-800 border-gray-600 text-gray-200' : 'bg-gray-100 border-gray-300 text-gray-900'}`;
+
+    return (
+        <table className={`w-full border-collapse border ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+            <caption className={`sticky top-0 z-20 p-4 text-xl font-semibold text-left ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+                Input Scores
+            </caption>
+            <thead>
+                <tr>
+                    <th className={`${headerClasses} text-left`}>TOM Dimension</th>
+                    <th className={headerClasses}>Maturity Score</th>
+                    <th className={headerClasses}>Business Impact</th>
+                    <th className={headerClasses}>Feasibility</th>
+                    <th className={headerClasses}>Political Viability</th>
+                    <th className={headerClasses}>Foundation Building</th>
+                </tr>
+            </thead>
+            <tbody className={darkMode ? 'bg-gray-800' : 'bg-white'}>
+                {Object.entries(groupedDimensions).map(([category, subGroups]) => (
+                    <React.Fragment key={category}>
+                        <tr className={darkMode ? 'bg-gray-700' : 'bg-gray-200'}>
+                            <td colSpan={6} className={`border p-3 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+                                <button onClick={() => toggleCategory(category)} className={`flex items-center font-bold text-lg w-full transition-colors ${darkMode ? 'text-gray-200 hover:text-white' : 'text-gray-800 hover:text-gray-900'}`}>
+                                    {expandedCategories[category] ? <ChevronDown className="w-5 h-5 mr-2" /> : <ChevronRight className="w-5 h-5 mr-2" />} {category}
+                                </button>
+                            </td>
+                        </tr>
+                        {expandedCategories[category] && Object.entries(subGroups).map(([subGroup, dimensions]) => (
+                            <React.Fragment key={subGroup}>
+                                {subGroup !== '_main' && (
+                                    <tr className={darkMode ? 'bg-gray-600' : 'bg-gray-100'}>
+                                        <td colSpan={6} className={`border p-2 pl-6 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
+                                            <button onClick={() => toggleSubDimension(subGroup)} className={`flex items-center font-semibold transition-colors ${darkMode ? 'text-gray-300 hover:text-gray-200' : 'text-gray-700 hover:text-gray-800'}`}>
+                                                {expandedSubDimensions[subGroup] ? <ChevronDown className="w-4 h-4 mr-2" /> : <ChevronRight className="w-4 h-4 mr-2" />} {subGroup}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                )}
+                                {(subGroup === '_main' || expandedSubDimensions[subGroup]) && dimensions.map(dim => renderDimensionRow(dim, subGroup !== '_main'))}
+                            </React.Fragment>
+                        ))}
+                    </React.Fragment>
+                ))}
+            </tbody>
+        </table>
+    );
 };
+
+export default DimensionTable;
