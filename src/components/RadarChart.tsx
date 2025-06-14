@@ -1,7 +1,7 @@
 // src/components/RadarChart.tsx
 
 import React from 'react';
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Legend } from 'recharts';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 
 interface ChartData {
     subject: string;
@@ -21,7 +21,7 @@ const RadarChartComponent: React.FC<RadarChartComponentProps> = ({ data }) => {
                 <PolarAngleAxis dataKey="subject" stroke="#fff" />
                 <PolarRadiusAxis angle={30} domain={[0, 5]} tickCount={6} stroke="#555" />
                 <Radar name="Maturity Score" dataKey="score" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
-                <Legend />
+                {/* UPDATE: The <Legend /> component has been removed */}
             </RadarChart>
         </ResponsiveContainer>
     );
