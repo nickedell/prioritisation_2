@@ -10,12 +10,16 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ darkMode, setDarkMode, onExportClick, onImportFileSelect }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // UPDATE: Read the new, correctly prefixed environment variable
-    const branch = import.meta.env.VITE_GIT_BRANCH;
-
     const handleImportClick = () => {
         fileInputRef.current?.click();
     };
+
+    // --- START DEBUGGING CODE ---
+    // We will now try to display the environment variables directly on the page.
+    const branchName = import.meta.env.VITE_GIT_BRANCH;
+    const context = import.meta.env.CONTEXT;
+    const nodeEnv = import.meta.env.NODE_ENV;
+    // --- END DEBUGGING CODE ---
 
     return (
         <>
@@ -52,8 +56,8 @@ const Header: React.FC<HeaderProps> = ({ darkMode, setDarkMode, onExportClick, o
             <div className="mb-8">
                 <div className="flex items-center gap-4">
                     <h1 className={`text-3xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>TOM Prioritisation Tool</h1>
-                    {/* This condition will now work correctly */}
-                    {branch === 'dev' && (
+                    {/* The original tag logic remains here for now */}
+                    {branchName === 'dev' && (
                         <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full -translate-y-1">
                             #dev
                         </span>
@@ -61,8 +65,7 @@ const Header: React.FC<HeaderProps> = ({ darkMode, setDarkMode, onExportClick, o
                 </div>
                 <p className={`mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Score each dimension on a 1-5 scale. The tool will automatically calculate priorities and apply special filters.</p>
             </div>
-        </>
-    );
-};
 
-export default Header;
+            {/* --- NEW DEBUGGING UI --- */}
+            <div className="fixed bottom-0 left-0 bg-yellow-400 text-black p-4 z-50 w-full text-xs">
+                <h3 className="font-bold text-lg">Debug Info:
