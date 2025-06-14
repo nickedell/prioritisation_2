@@ -1,5 +1,3 @@
-// src/components/RadarChart.tsx
-
 import React from 'react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 
@@ -15,7 +13,8 @@ interface RadarChartComponentProps {
 
 const RadarChartComponent: React.FC<RadarChartComponentProps> = ({ data }) => {
     return (
-        <ResponsiveContainer width="100%" height={400}>
+        // UPDATE: Changed height from 400 to 300
+        <ResponsiveContainer width="100%" height={300}>
             <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
                 <PolarGrid stroke="#555" />
                 <PolarAngleAxis dataKey="subject" stroke="#fff" />
