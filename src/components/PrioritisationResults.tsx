@@ -1,142 +1,89 @@
-import { useState, useContext, useEffect } from 'react';
-import { initialTomDimensions } from '../constants/dimensions.ts';
-import { TOMDimension, Weights } from '../types/index.ts';
-import { usePrioritisation } from '../hooks/usePrioritisation.ts';
-import { MaturityContext } from '../context/MaturityContext.tsx';
-import Header from '../components/Header.tsx';
-import Configuration from '../components/Configuration.tsx';
-import DimensionTable from '../components/DimensionTable.tsx';
-import PrioritisationResults from '../components/PrioritisationResults.tsx';
+import React from 'react';
+import { PrioritisedDimension } from '../types/index.ts';
+import { ArrowUp, Star, AlertTriangle, CheckCircle, TrendingUp } from 'lucide-react';
 
-const PrioritisationPage = () => {
-    const [tomDimensions, setTomDimensions] = useState<TOMDimension[]>(initialTomDimensions);
-    const [darkMode, setDarkMode] = useState(true);
-    const [weights, setWeights] = useState<Weights>({
-        businessImpact: 35,
-        feasibility: 30,
-        political: 20,
-        foundation: 15
-    });
-    
-    const maturityContext = useContext(MaturityContext);
-    const prioritisedDimensions = usePrioritisation(tomDimensions, weights);
+interface PrioritisationResultsProps {
+    prioritisedDimensions: PrioritisedDimension[];
+    darkMode: boolean;
+}
 
-    useEffect(() => {
-        if (maturityContext && Object.keys(maturityContext.scores).length > 0) {
-            setTomDimensions(prevDimensions => 
-                prevDimensions.map(dim => {
-                    const newScore = maturityContext.scores[dim.name];
-                    if (newScore !== undefined) {
-                        return { ...dim, currentScore: newScore };
-                    }
-                    return dim;
-                })
-            );
+const PrioritisationResults: React.FC<PrioritisationResultsProps> = ({ prioritisedDimensions, darkMode }) => {
+
+    const getTierColor = (tier: string) => {
+        if (darkMode) {
+            switch (tier) {
+                case 'Priority 1': return 'bg-gray-700 border-gray-500 text-gray-200';
+                case 'Priority 2': return 'bg-gray-600 border-gray-400 text-gray-200';
+                case 'Priority 3': return 'bg-gray-500 border-gray-300 text-gray-100';
+                default: return 'bg-gray-800 border-gray-600 text-gray-300';
+            }
         }
-    }, [maturityContext]);
-
-    const updateScore = (id: number, field: keyof TOMDimension, value: string | number) => {
-        setTomDimensions(prev =>
-            prev.map(dim =>
-                dim.id === id ? {
-                    ...dim,
-                    [field]: typeof value === 'string' ? (field === 'currentScore' ? parseFloat(value) : parseInt(value)) || 0 : value
-                } : dim
-            )
-        );
+        // Light mode colors
+        switch (tier) {
+            case 'Priority 1': return 'bg-blue-50 border-blue-300 text-gray-800';
+            case 'Priority 2': return 'bg-green-50 border-green-300 text-gray-800';
+            case 'Priority 3': return 'bg-yellow-50 border-yellow-300 text-gray-800';
+            default: return 'bg-gray-100 border-gray-300 text-gray-600';
+        }
     };
 
-    const handleExport = () => {
-        const headers = ['Rank', 'TOM Dimension', 'Category', 'Sub Dimension', 'Maturity Score', 'Business Impact', 'Feasibility', 'Political Viability', 'Foundation Building'];
-        const csvData = prioritisedDimensions.map((dim, index) => [
-            index + 1, dim.name, dim.category, dim.subDimension || '', dim.currentScore, dim.businessImpact,
-            dim.feasibility, dim.political, dim.foundation
-        ]);
-        const csvContent = [headers, ...csvData].map(row => row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(',')).join('\n');
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute('download', 'tom-prioritisation-scores.csv');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-
-    const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const text = e.target?.result as string;
-            const rows = text.split('\n').slice(1);
-            const newDimensions = tomDimensions.map(d => ({ ...d }));
-            const headerRow = text.split('\n')[0].split(',').map(h => h.replace(/"/g, '').trim());
-            const nameIndex = headerRow.indexOf('TOM Dimension');
-            const maturityIndex = headerRow.indexOf('Maturity Score');
-            const businessImpactIndex = headerRow.indexOf('Business Impact');
-            const feasibilityIndex = headerRow.indexOf('Feasibility');
-            const politicalIndex = headerRow.indexOf('Political Viability');
-            const foundationIndex = headerRow.indexOf('Foundation Building');
-            rows.forEach(row => {
-                if (row.trim() === '') return;
-                const columns = row.trim().split(',');
-                const name = columns[nameIndex]?.replace(/"/g, '').trim();
-                const dimension = newDimensions.find(d => d.name === name);
-                if (dimension) {
-                    dimension.currentScore = parseFloat(columns[maturityIndex]?.replace(/"/g, '')) || 0;
-                    dimension.businessImpact = parseInt(columns[businessImpactIndex]?.replace(/"/g, '')) || 0;
-                    dimension.feasibility = parseInt(columns[feasibilityIndex]?.replace(/"/g, '')) || 0;
-                    dimension.political = parseInt(columns[politicalIndex]?.replace(/"/g, '')) || 0;
-                    dimension.foundation = parseInt(columns[foundationIndex]?.replace(/"/g, '')) || 0;
-                }
-            });
-            setTomDimensions(newDimensions);
-        };
-        reader.readAsText(file);
-        event.target.value = '';
+    const getFilterIcon = (filter: string) => {
+        const iconColor = darkMode ? 'text-gray-300' : 'text-gray-600';
+        switch (filter) {
+            case 'Quick Win': return <Star className={`w-4 h-4 ${iconColor}`} />;
+            case 'Reputation Recovery': return <CheckCircle className={`w-4 h-4 ${iconColor}`} />;
+            case 'Political Risk': return <AlertTriangle className={`w-4 h-4 ${iconColor}`} />;
+            case 'Foundation Builder': return <ArrowUp className={`w-4 h-4 ${iconColor}`} />;
+            case 'Paradox': return <TrendingUp className={`w-4 h-4 ${iconColor}`} />;
+            default: return null;
+        }
     };
 
     return (
-        <div className={darkMode ? 'bg-gray-900' : 'bg-gray-50'}>
-            <div className={`max-w-7xl mx-auto p-6 min-h-screen ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>
-                <Header
-                    title="TOM Prioritisation Tool"
-                    subtitle="Score each dimension on a 1-5 scale. The tool will automatically calculate priorities and apply special filters."
-                    darkMode={darkMode}
-                    setDarkMode={setDarkMode}
-                    onExportClick={handleExport}
-                    onImportFileSelect={handleImport}
-                />
-                <div className="mb-8">
-                    <Configuration
-                        weights={weights}
-                        setWeights={setWeights}
-                        darkMode={darkMode}
-                    />
-                </div>
-                <div className="flex flex-col lg:flex-row gap-6">
-                    <div className="flex-1">
-                        <h2 className={`text-xl font-semibold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Input Scores</h2>
-                        <div className="overflow-x-auto">
-                            <DimensionTable
-                                tomDimensions={tomDimensions}
-                                updateScore={updateScore}
-                                darkMode={darkMode}
-                            />
+        <>
+            <div className="flex items-center justify-between mb-4">
+                <h2 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>Prioritised Results</h2>
+            </div>
+            <div className={`max-h-[calc(100vh-12rem)] overflow-y-auto space-y-2 rounded-lg p-4 border ${darkMode ? 'border-gray-700' : 'border-gray-300'}`}>
+                {prioritisedDimensions.map((dim, index) => (
+                    <div key={dim.id} className={`p-3 rounded-lg border-2 ${getTierColor(dim.tier)}`}>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2 min-w-0">
+                                <span className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>#{index + 1}</span>
+                                <div className="flex-1 min-w-0">
+                                    <h3 className={`font-semibold text-sm leading-tight truncate ${darkMode ? 'text-white' : 'text-gray-900'}`} title={dim.name}>{dim.name}</h3>
+                                    <p className={`text-xs ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{dim.category.split(' ')[0]}{dim.subDimension && ` → ${dim.subDimension}`}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center space-x-2 flex-shrink-0">
+                                <div className="flex space-x-1">{dim.filters.map(filter => <span key={filter} title={filter}>{getFilterIcon(filter)}</span>)}</div>
+                                <div className="text-right">
+                                    <div className={`font-bold text-sm ${darkMode ? 'text-white' : 'text-gray-900'}`}>{dim.adjustedScore.toFixed(1)}</div>
+                                    <div className={`text-xs ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{dim.tier}</div>
+                                </div>
+                            </div>
                         </div>
+                        {dim.filters.includes('Paradox') && dim.paradoxDescription && (
+                            <div className="mt-2 text-xs">
+                                <span className={`${darkMode ? 'text-yellow-300' : 'text-yellow-700'} font-medium`}>Paradox: </span>
+                                <span className={`${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>{dim.paradoxDescription}</span>
+                            </div>
+                        )}
                     </div>
-                    <div className="w-full lg:w-96 flex-shrink-0">
-                        <div className="sticky top-6">
-                            <PrioritisationResults
-                                prioritisedDimensions={prioritisedDimensions}
-                                darkMode={darkMode}
-                            />
-                        </div>
-                    </div>
+                ))}
+            </div>
+            <div className={`mt-4 p-3 rounded-lg border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'}`}>
+                <h3 className={`font-semibold mb-2 text-sm ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>Legend</h3>
+                <div className="space-y-1 text-xs text-gray-300">
+                    <div className="flex items-center gap-2"><Star className="w-3 h-3 text-gray-500" /><span>Quick Win</span></div>
+                    <div className="flex items-center gap-2"><CheckCircle className="w-3 h-3 text-gray-500" /><span>Reputation Recovery</span></div>
+                    <div className="flex items-center gap-2"><AlertTriangle className="w-3 h-3 text-gray-500" /><span>Political Risk</span></div>
+                    <div className="flex items-center gap-2"><ArrowUp className="w-3 h-3 text-gray-500" /><span>Foundation Builder</span></div>
+                    <div className="flex items-center gap-2"><TrendingUp className="w-3 h-3 text-gray-500" /><span>Paradox</span></div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 
-export default PrioritisationPage;
+export default PrioritisationResults;
