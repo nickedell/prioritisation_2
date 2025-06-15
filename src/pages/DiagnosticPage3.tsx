@@ -13,12 +13,6 @@ const DiagnosticPage3: React.FC = () => {
 
     const { scores, updateScore } = maturityContext;
 
-    // This data structure remains the same
-    const groupedData = useMemo(() => diagnosticData.reduce((acc, item) => {
-        (acc[item.category] = acc[item.category] || []).push(item);
-        return acc;
-    }, {} as Record<string, typeof diagnosticData>), []);
-
     const chartData = useMemo(() => {
         const subDimensionScores: { [key: string]: { total: number, count: number } } = {};
         const getBaseSubDimension = (name: string) => name.includes(':') ? name.split(':')[0] : name;
@@ -41,19 +35,15 @@ const DiagnosticPage3: React.FC = () => {
         }));
     }, [scores]);
 
-    // NEW: A handler function that updates the score AND scrolls to the next question
     const handleSelectScore = (dimensionName: string, score: number, currentIndex: number) => {
-        // First, update the score in our context
         updateScore(dimensionName, score);
 
-        // Then, find the next question
         const nextIndex = currentIndex + 1;
         if (nextIndex < diagnosticData.length) {
             const nextDimensionId = `dimension-card-${nextIndex}`;
-            // Use a short timeout to allow React to re-render before we scroll
             setTimeout(() => {
                 const nextElement = document.getElementById(nextDimensionId);
-                nextElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                nextElement?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 150);
         }
     };
@@ -75,17 +65,23 @@ const DiagnosticPage3: React.FC = () => {
                 </div>
 
                 <div className="space-y-12">
-                    {/* UPDATE: We now map over the flat diagnosticData array to make finding the "next" item easier */}
                     {diagnosticData.map((item, index) => {
+                        // We check if the category is different from the previous item to know when to render a new heading
                         const showCategoryHeader = index === 0 || item.category !== diagnosticData[index - 1].category;
                         return (
                             <React.Fragment key={item.name}>
                                 {showCategoryHeader && (
-                                    <h2 id={item.category} className="text-2xl font-bold border-b-2 border-gray-700 pb-2 mb-6 pt-8">
+                                    // UPDATE: The category heading is now sticky
+                                    <h2
+                                        id={item.category}
+                                        className={`sticky z-30 text-2xl font-bold border-b-2 border-gray-700 pb-2 mb-6 pt-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
+                                        style={{ top: '24rem' }} // This offset places it below the main sticky header/chart
+                                    >
                                         {item.category}
                                     </h2>
                                 )}
-                                <div id={`dimension-card-${index}`} className="p-6 bg-gray-800 rounded-lg border border-gray-700 scroll-mt-40">
+                                {/* UPDATE: Added a scroll-margin-top class to account for the sticky headers */}
+                                <div id={`dimension-card-${index}`} className="p-6 bg-gray-800 rounded-lg border border-gray-700 scroll-mt-[30rem]">
                                     <h3 className="font-semibold text-lg">{item.name}</h3>
                                     <p className="text-sm text-gray-400 mt-1 mb-6">{item.description}</p>
                                     <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -96,7 +92,6 @@ const DiagnosticPage3: React.FC = () => {
                                                 <div
                                                     key={score}
                                                     className={`p-4 border-2 rounded-md cursor-pointer transition-all h-full flex flex-col ${isSelected ? 'bg-blue-600 border-blue-400' : 'bg-gray-700 border-gray-600 hover:border-gray-500'}`}
-                                                    // UPDATE: Use the new handler, passing the item's index
                                                     onClick={() => handleSelectScore(item.name, score, index)}
                                                 >
                                                     <strong className="block text-lg mb-2">Level {score}</strong>
