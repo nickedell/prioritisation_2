@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { diagnosticData } from '../constants/diagnostic.ts';
 import { MaturityContext } from '../context/MaturityContext.tsx';
-import RadarChartComponent from '../components/RadarChart.tsx';
+// import RadarChartComponent from '../components/RadarChart.tsx'; // Temporarily disabled for debugging
 import Header from '../components/Header.tsx';
 
 const DiagnosticPage = () => {
@@ -22,27 +22,7 @@ const DiagnosticPage = () => {
         return acc;
     }, {} as Record<string, typeof diagnosticData>), []);
 
-    const chartData = useMemo(() => {
-        const subDimensionScores: { [key: string]: { total: number, count: number } } = {};
-        const getBaseSubDimension = (name: string) => name.includes(':') ? name.split(':')[0] : name;
-        const uniqueSubDimensions = [...new Set(diagnosticData.map(item => getBaseSubDimension(item.name)))];
-        uniqueSubDimensions.forEach(subDim => { subDimensionScores[subDim] = { total: 0, count: 0 }; });
-        Object.entries(scores || {}).forEach(([dimensionName, score]) => {
-            const item = diagnosticData.find(d => d.name === dimensionName);
-            if (item) {
-                const baseSubDim = getBaseSubDimension(item.name);
-                if (subDimensionScores[baseSubDim]) {
-                    subDimensionScores[baseSubDim].total += score;
-                    subDimensionScores[baseSubDim].count += 1;
-                }
-            }
-        });
-        return Object.entries(subDimensionScores).map(([subDim, data]) => ({
-            subject: subDim,
-            score: data.count > 0 ? parseFloat((data.total / data.count).toFixed(2)) : 0,
-            fullMark: 5,
-        }));
-    }, [scores]);
+    // const chartData = useMemo(() => { ... }); // Temporarily disabled for debugging
 
     const handleCategoryClick = (category: string) => {
         const isOpeningNewCategory = openCategory !== category;
@@ -115,7 +95,7 @@ const DiagnosticPage = () => {
                         </button>
                         {isChartVisible && (
                             <div className="p-4 border-t border-gray-700">
-                                <RadarChartComponent data={chartData} />
+                                <p className="text-center text-gray-400">Chart is temporarily disabled for debugging.</p>
                             </div>
                         )}
                     </div>
