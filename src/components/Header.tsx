@@ -1,5 +1,4 @@
 import React, { useRef } from 'react';
-import { Link } from 'react-router-dom'; // Import the Link component
 
 interface HeaderProps {
     title: string;
@@ -7,28 +6,22 @@ interface HeaderProps {
     darkMode: boolean;
     setDarkMode: (value: boolean) => void;
     showDevTag?: boolean;
-    showPrioritisationLink?: boolean; // New optional prop
     onExportClick?: () => void;
     onImportFileSelect?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ title, subtitle, darkMode, setDarkMode, showDevTag, showPrioritisationLink, onExportClick, onImportFileSelect }) => {
+const Header: React.FC<HeaderProps> = ({ title, subtitle, darkMode, setDarkMode, showDevTag, onExportClick, onImportFileSelect }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleImportClick = () => {
+        // This triggers the hidden file input field
         fileInputRef.current?.click();
     };
 
     return (
         <>
             <div className="flex justify-end items-center mb-4 space-x-4">
-                {/* NEW: Conditionally render the link to the prioritisation tool */}
-                {showPrioritisationLink && (
-                    <Link to="/prioritisation" className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${darkMode ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-blue-500 text-white hover:bg-blue-600'}`}>
-                        Prioritisation Tool →
-                    </Link>
-                )}
-
+                {/* Conditionally render the Import/Export buttons if handlers are provided */}
                 {onImportFileSelect && (
                     <>
                         <button
