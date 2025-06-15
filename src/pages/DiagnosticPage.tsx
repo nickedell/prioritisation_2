@@ -43,7 +43,7 @@ const DiagnosticPage = () => {
             fullMark: 5,
         }));
     }, [scores]);
-    
+
     const handleCategoryClick = (category: string) => {
         const isOpeningNewCategory = openCategory !== category;
         setOpenCategory(openCategory === category ? '' : category);
@@ -54,40 +54,7 @@ const DiagnosticPage = () => {
         }
     };
     
-    const handleDiagnosticExport = () => {
-        const headers = ['Dimension Name', 'Maturity Score'];
-        const csvData = Object.entries(scores);
-        const csvContent = [headers, ...csvData].map(row => row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(',')).join('\n');
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute('download', 'maturity-diagnostic-scores.csv');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-
-    const handleDiagnosticImport = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const text = e.target?.result as string;
-            const rows = text.split('\n').slice(1);
-            rows.forEach(row => {
-                if (row.trim() === '') return;
-                const columns = row.trim().split(',');
-                const name = columns[0]?.replace(/"/g, '').trim();
-                const score = parseInt(columns[1]?.replace(/"/g, ''), 10);
-                if (name && !isNaN(score)) {
-                    updateScore(name, score);
-                }
-            });
-        };
-        reader.readAsText(file);
-        event.target.value = '';
-    };
-
+    // UPDATE: This line is now complete and correct
     const tableHeaderClasses = `sticky top-0 p-3 text-left text-xs font-medium uppercase tracking-wider z-10 ${darkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-500'}`;
 
     return (
@@ -101,8 +68,6 @@ const DiagnosticPage = () => {
                         darkMode={darkMode}
                         setDarkMode={setDarkMode}
                         showDevTag={true}
-                        onExportClick={handleDiagnosticExport}
-                        onImportFileSelect={handleDiagnosticImport}
                     />
                     <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700">
                         <button
