@@ -1,18 +1,15 @@
 import React, { useRef } from 'react';
-import { Link } from 'react-router-dom';
 
 interface HeaderProps {
     title: string;
     subtitle: string;
     darkMode: boolean;
     setDarkMode: (value: boolean) => void;
-    showDevTag?: boolean;
-    showPrioritisationLink?: boolean;
     onExportClick?: () => void;
     onImportFileSelect?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ title, subtitle, darkMode, setDarkMode, showDevTag, showPrioritisationLink, onExportClick, onImportFileSelect }) => {
+const Header: React.FC<HeaderProps> = ({ title, subtitle, darkMode, setDarkMode, onExportClick, onImportFileSelect }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleImportClick = () => {
@@ -22,11 +19,6 @@ const Header: React.FC<HeaderProps> = ({ title, subtitle, darkMode, setDarkMode,
     return (
         <>
             <div className="flex justify-end items-center mb-4 space-x-4">
-                {showPrioritisationLink && (
-                    <Link to="/prioritisation" className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${darkMode ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-blue-500 text-white hover:bg-blue-600'}`}>
-                        Prioritisation Tool →
-                    </Link>
-                )}
                 {onImportFileSelect && (
                     <>
                         <button
@@ -52,6 +44,7 @@ const Header: React.FC<HeaderProps> = ({ title, subtitle, darkMode, setDarkMode,
                         Export CSV
                     </button>
                 )}
+
                 <button
                     onClick={() => setDarkMode(!darkMode)}
                     className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${darkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}
@@ -65,11 +58,6 @@ const Header: React.FC<HeaderProps> = ({ title, subtitle, darkMode, setDarkMode,
             <div className="mb-8">
                 <div className="flex items-center gap-4">
                     <h1 className={`text-3xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{title}</h1>
-                    {showDevTag && (
-                        <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full -translate-y-1">
-                            #dev
-                        </span>
-                    )}
                 </div>
                 <p className={`mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{subtitle}</p>
             </div>
