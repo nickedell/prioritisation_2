@@ -9,8 +9,6 @@ import Header from '../components/Header.tsx';
 const DiagnosticPage2: React.FC = () => {
     const maturityContext = useContext(MaturityContext);
     const [darkMode, setDarkMode] = useState(true);
-    
-    // NEW: State to track which dimension is selected in the sidebar
     const [selectedDimension, setSelectedDimension] = useState(diagnosticData[0]);
 
     if (!maturityContext) { return <div>Loading...</div>; }
@@ -85,7 +83,8 @@ const DiagnosticPage2: React.FC = () => {
 
                     {/* --- Main Content Area --- */}
                     <main className="flex-1">
-                        <div className="p-4 bg-gray-800 rounded-lg mb-8 shadow-lg border border-gray-700">
+                        {/* UPDATE: The styled wrapper div has been removed, a simple div for margin remains */}
+                        <div className="mb-8">
                             <RadarChartComponent data={chartData} />
                         </div>
 
