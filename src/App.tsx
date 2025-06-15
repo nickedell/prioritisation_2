@@ -2,14 +2,15 @@
 
 import { Routes, Route } from 'react-router-dom';
 import { MaturityProvider } from './context/MaturityContext.tsx';
-import DiagnosticPage from './pages/DiagnosticPage.tsx';
+import DiagnosticPage2 from './pages/DiagnosticPage2.tsx'; // Import the new page
 import PrioritisationPage from './pages/PrioritisationPage.tsx';
 
 const App = () => {
   return (
     <MaturityProvider>
       <Routes>
-        <Route path="/" element={<DiagnosticPage />} />
+        {/* The root path now points to our new test page */}
+        <Route path="/" element={<DiagnosticPage2 />} /> 
         <Route path="/prioritisation" element={<PrioritisationPage />} />
       </Routes>
     </MaturityProvider>
