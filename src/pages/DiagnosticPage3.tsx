@@ -51,7 +51,8 @@ const DiagnosticPage3: React.FC = () => {
     return (
         <div className={darkMode ? 'bg-gray-900' : 'bg-gray-50'}>
             <div className={`max-w-7xl mx-auto p-6 min-h-screen ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>
-                <div className={`sticky top-0 z-40 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'} py-4`}>
+                {/* Main sticky container for header and chart */}
+                <div className={`sticky top-0 z-40 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'} pt-4 pb-8`}>
                     <Header
                         title="Maturity Diagnostic"
                         subtitle="Select the description that best fits your organisation's current state for each dimension."
@@ -59,29 +60,29 @@ const DiagnosticPage3: React.FC = () => {
                         setDarkMode={setDarkMode}
                         showDevTag={true}
                     />
-                    <div className="mb-8">
+                    {/* UPDATE: Removed bottom margin from the chart to make the parent height more predictable */}
+                    <div>
                         <RadarChartComponent data={chartData} />
                     </div>
                 </div>
 
                 <div className="space-y-12">
                     {diagnosticData.map((item, index) => {
-                        // We check if the category is different from the previous item to know when to render a new heading
                         const showCategoryHeader = index === 0 || item.category !== diagnosticData[index - 1].category;
                         return (
                             <React.Fragment key={item.name}>
                                 {showCategoryHeader && (
-                                    // UPDATE: The category heading is now sticky
+                                    // UPDATE: The category heading is now sticky with a calculated top offset
                                     <h2
                                         id={item.category}
                                         className={`sticky z-30 text-2xl font-bold border-b-2 border-gray-700 pb-2 mb-6 pt-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
-                                        style={{ top: '24rem' }} // This offset places it below the main sticky header/chart
+                                        style={{ top: '350px' }} // This offset should place it below the main sticky header
                                     >
                                         {item.category}
                                     </h2>
                                 )}
-                                {/* UPDATE: Added a scroll-margin-top class to account for the sticky headers */}
-                                <div id={`dimension-card-${index}`} className="p-6 bg-gray-800 rounded-lg border border-gray-700 scroll-mt-[30rem]">
+                                {/* UPDATE: Increased scroll-margin-top to account for all sticky headers */}
+                                <div id={`dimension-card-${index}`} className="p-6 bg-gray-800 rounded-lg border border-gray-700 scroll-mt-[420px]">
                                     <h3 className="font-semibold text-lg">{item.name}</h3>
                                     <p className="text-sm text-gray-400 mt-1 mb-6">{item.description}</p>
                                     <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
