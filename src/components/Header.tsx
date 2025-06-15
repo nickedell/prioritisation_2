@@ -1,53 +1,17 @@
-import React, { useRef } from 'react';
+import React from 'react';
 
 interface HeaderProps {
     title: string;
     subtitle: string;
     darkMode: boolean;
     setDarkMode: (value: boolean) => void;
-    showDevTag?: boolean;
-    onExportClick?: () => void;
-    onImportFileSelect?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    showDevTag?: boolean; // New optional prop
 }
 
-const Header: React.FC<HeaderProps> = ({ title, subtitle, darkMode, setDarkMode, showDevTag, onExportClick, onImportFileSelect }) => {
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
-    const handleImportClick = () => {
-        // This triggers the hidden file input field
-        fileInputRef.current?.click();
-    };
-
+const Header: React.FC<HeaderProps> = ({ title, subtitle, darkMode, setDarkMode, showDevTag }) => {
     return (
         <>
             <div className="flex justify-end items-center mb-4 space-x-4">
-                {/* Conditionally render the Import/Export buttons if handlers are provided */}
-                {onImportFileSelect && (
-                    <>
-                        <button
-                            onClick={handleImportClick}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${darkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}
-                        >
-                            Import CSV
-                        </button>
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            onChange={onImportFileSelect}
-                            className="hidden"
-                            accept=".csv"
-                        />
-                    </>
-                )}
-                {onExportClick && (
-                    <button
-                        onClick={onExportClick}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${darkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}
-                    >
-                        Export CSV
-                    </button>
-                )}
-
                 <button
                     onClick={() => setDarkMode(!darkMode)}
                     className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${darkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}
@@ -61,6 +25,7 @@ const Header: React.FC<HeaderProps> = ({ title, subtitle, darkMode, setDarkMode,
             <div className="mb-8">
                 <div className="flex items-center gap-4">
                     <h1 className={`text-3xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{title}</h1>
+                    {/* Conditionally render the #dev tag based on the new prop */}
                     {showDevTag && (
                         <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full -translate-y-1">
                             #dev
