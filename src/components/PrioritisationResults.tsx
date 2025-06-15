@@ -34,7 +34,6 @@ const PrioritisationPage = () => {
         }
     }, [maturityContext]);
 
-
     const updateScore = (id: number, field: keyof TOMDimension, value: string | number) => {
         setTomDimensions(prev =>
             prev.map(dim =>
@@ -46,6 +45,7 @@ const PrioritisationPage = () => {
         );
     };
 
+    // UPDATE: Restoring the handler functions
     const handleExport = () => {
         const headers = ['Rank', 'TOM Dimension', 'Category', 'Sub Dimension', 'Maturity Score', 'Business Impact', 'Feasibility', 'Political Viability', 'Foundation Building'];
         const csvData = prioritisedDimensions.map((dim, index) => [
@@ -98,45 +98,4 @@ const PrioritisationPage = () => {
 
     return (
         <div className={darkMode ? 'bg-gray-900' : 'bg-gray-50'}>
-            <div className={`max-w-7xl mx-auto p-6 min-h-screen ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>
-                <Header
-                    title="TOM Prioritisation Tool"
-                    subtitle="Score each dimension on a 1-5 scale. The tool will automatically calculate priorities and apply special filters."
-                    darkMode={darkMode}
-                    setDarkMode={setDarkMode}
-                    onExportClick={handleExport}
-                    onImportFileSelect={handleImport}
-                />
-                <div className="mb-8">
-                    <Configuration
-                        weights={weights}
-                        setWeights={setWeights}
-                        darkMode={darkMode}
-                    />
-                </div>
-                <div className="flex flex-col lg:flex-row gap-6">
-                    <div className="flex-1">
-                        <h2 className={`text-xl font-semibold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Input Scores</h2>
-                        <div className="overflow-x-auto">
-                            <DimensionTable
-                                tomDimensions={tomDimensions}
-                                updateScore={updateScore}
-                                darkMode={darkMode}
-                            />
-                        </div>
-                    </div>
-                    <div className="w-full lg:w-96 flex-shrink-0">
-                        <div className="sticky top-6">
-                            <PrioritisationResults
-                                prioritisedDimensions={prioritisedDimensions}
-                                darkMode={darkMode}
-                            />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-export default PrioritisationPage;
+            <div className={`max-w-7xl mx-
