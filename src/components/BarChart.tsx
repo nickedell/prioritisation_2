@@ -1,20 +1,35 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { DiagnosticItem } from '../constants/diagnostic.ts';
 
-// This custom component now correctly parses the payload to create the tree view
+// This defines the shape of the data a single bar receives
+interface ChartDataPoint {
+    dimension: DiagnosticItem;
+    score: number;
+}
+
+interface BarChartComponentProps {
+    data: ChartDataPoint[];
+    onMouseEnter: (data: any) => void;
+    onMouseLeave: () => void;
+}
+
+// This is the corrected custom component to render the hierarchical tick labels
 const CustomizedYAxisTick: React.FC<any> = (props) => {
     const { x, y, payload } = props;
 
-    // Safety check for the value from the payload
-    if (typeof payload.value === 'undefined') {
+    // The full dimension name is in payload.value
+    const name = payload.value;
+
+    // Safety check: if there's no name, don't render anything
+    if (typeof name === 'undefined') {
         return null; 
     }
 
-    const name = payload.value;
     const parts = name.split(': ');
 
     return (
-        <g transform={`translate(${x},${y})`}>
+        <g transform={`translate(<span class="math-inline">\{x\},</span>{y})`}>
             <text x={0} y={0} dy={4} textAnchor="end" fill="#fff" fontSize={12}>
                 {parts.map((part, index) => (
                     <tspan
@@ -33,7 +48,7 @@ const CustomizedYAxisTick: React.FC<any> = (props) => {
 };
 
 
-const BarChartComponent: React.FC<any> = ({ data, onMouseEnter, onMouseLeave }) => {
+const BarChartComponent: React.FC<BarChartComponentProps> = ({ data, onMouseEnter, onMouseLeave }) => {
     return (
         <ResponsiveContainer width="100%" height={550}>
             <BarChart
@@ -45,22 +60,4 @@ const BarChartComponent: React.FC<any> = ({ data, onMouseEnter, onMouseLeave }) 
                 <XAxis type="number" domain={[0, 5]} stroke="#fff" tickCount={6} />
                 <YAxis
                     yAxisId={0}
-                    // The dataKey tells Recharts to use the 'name' from the 'dimension' object as the value
-                    dataKey="dimension.name"
-                    type="category"
-                    stroke="#fff"
-                    width={220} 
-                    tick={<CustomizedYAxisTick />} // Use our custom component for rendering
-                    interval={0} // Ensure every single label is rendered
-                />
-                <Tooltip
-                    cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
-                    contentStyle={{ backgroundColor: '#333', border: 'none' }}
-                />
-                <Bar dataKey="score" fill="#8884d8" barSize={15} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} />
-            </BarChart>
-        </ResponsiveContainer>
-    );
-};
-
-export default BarChartComponent;
+                    dataKey="dimension.name" // Use the unique
