@@ -17,7 +17,8 @@ export const MaturityProvider = ({ children }: { children: ReactNode }) => {
         }));
     };
 
-    // This useMemo hook is critical for performance and preventing bugs
+    // UPDATE: Memoizing the context value is critical for performance and
+    // ensures that components only re-render when the scores actually change.
     const value = useMemo(() => ({ scores, updateScore }), [scores]);
 
     return (
