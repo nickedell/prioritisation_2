@@ -1,25 +1,25 @@
 import React, { useContext, useMemo, useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { diagnosticData } from '../constants/diagnostic.ts';
+import { diagnosticData, DiagnosticItem } from '../constants/diagnostic.ts';
 import { MaturityContext } from '../context/MaturityContext.tsx';
 import BarChartComponent from '../components/BarChart.tsx';
 import Header from '../components/Header.tsx';
-import { DiagnosticItem } from '../constants/diagnostic.ts';
 
 const DiagnosticPage6: React.FC = () => {
     const maturityContext = useContext(MaturityContext);
     const [darkMode, setDarkMode] = useState(true);
     const stickyHeaderRef = useRef<HTMLDivElement>(null);
     const [visibleCategory, setVisibleCategory] = useState('STRATEGY');
+    const [hoveredDimension, setHoveredDimension] = useState<DiagnosticItem | null>(null);
 
     if (!maturityContext) { return <div>Loading...</div>; }
 
     const { scores, updateScore } = maturityContext;
 
+    // UPDATE: We are now passing the entire 'item' object as 'dimension'
     const chartData = useMemo(() => {
-        // UPDATE: Added .filter(Boolean) as a safety check
         return diagnosticData.filter(Boolean).map(item => ({
-            subject: item.name,
+            dimension: item, // Pass the full dimension object
             score: scores[item.name] || 0,
         }));
     }, [scores]);
@@ -43,7 +43,6 @@ const DiagnosticPage6: React.FC = () => {
 
     useEffect(() => {
         const categoryElements: HTMLElement[] = [];
-        // UPDATE: Added .filter(Boolean) as a safety check
         diagnosticData.filter(Boolean).forEach(item => {
             if (!categoryElements.some(el => el.id === item.category)) {
                 const el = document.getElementById(item.category);
@@ -64,6 +63,16 @@ const DiagnosticPage6: React.FC = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    // UPDATE: The hover handlers now expect the full data payload from the chart
+    const handleChartMouseEnter = (data: any) => {
+        if (data && data.payload && data.payload.dimension) {
+            setHoveredDimension(data.payload.dimension);
+        }
+    };
+    const handleChartMouseLeave = () => {
+        setHoveredDimension(null);
+    };
+
     const levelHeaders = [
         'LEVEL 1 - AD HOC/REACTIVE', 'LEVEL 2 - MANAGED/DEFINED',
         'LEVEL 3 - PROACTIVE/STANDARDISED', 'LEVEL 4 - PREDICTIVE/OPTIMISED',
@@ -81,16 +90,36 @@ const DiagnosticPage6: React.FC = () => {
                         setDarkMode={setDarkMode}
                         showDevTag={true}
                     />
-                    <div className="mb-4">
-                        <BarChartComponent data={chartData} />
+                    <div className="flex gap-8 items-start">
+                        <div className="w-2/3">
+                            <BarChartComponent
+                                data={chartData}
+                                onMouseEnter={handleChartMouseEnter}
+                                onMouseLeave={handleChartMouseLeave}
+                            />
+                        </div>
+                        <div className="w-1/3 mt-12">
+                             <h3 className="text-lg font-semibold mb-2">Dimension Details</h3>
+                             <div className="p-4 bg-gray-900 rounded-md h-80">
+                                {hoveredDimension ? (
+                                    <>
+                                        <h4 className="font-bold text-white">{hoveredDimension.name}</h4>
+                                        <p className="text-sm text-gray-400 mt-2">{hoveredDimension.description}</p>
+                                    </>
+                                ) : (
+                                    <div className="h-full flex items-center justify-center">
+                                        <p className="text-gray-500">Hover over a bar to see details</p>
+                                    </div>
+                                )}
+                             </div>
+                        </div>
                     </div>
-                    <h2 className="text-2xl font-bold border-b-2 border-gray-700 pb-2">
+                    <h2 className="text-2xl font-bold border-b-2 border-gray-700 pb-2 mt-4">
                         {visibleCategory}
                     </h2>
                 </div>
 
                 <div className="space-y-12">
-                    {/* UPDATE: Added .filter(Boolean) as a safety check */}
                     {diagnosticData.filter(Boolean).map((item, index) => {
                         const showCategoryHeader = index === 0 || item.category !== diagnosticData[index - 1]?.category;
                         return (
