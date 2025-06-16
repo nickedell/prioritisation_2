@@ -15,13 +15,10 @@ const DiagnosticPage6: React.FC = () => {
 
     const { scores, updateScore } = maturityContext;
 
-    // UPDATE: This logic is now much simpler and correct.
-    // It creates one bar for each dimension from the original data
-    // and keeps them in their original, static order.
     const chartData = useMemo(() => {
         return diagnosticData.map(item => ({
             subject: item.name,
-            score: scores[item.name] || 0, // Get the score from context, or default to 0
+            score: scores[item.name] || 0,
         }));
     }, [scores]);
 
@@ -45,7 +42,7 @@ const DiagnosticPage6: React.FC = () => {
     useEffect(() => {
         const categoryElements: HTMLElement[] = [];
         diagnosticData.forEach(item => {
-            if (!categoryElements.some(el => el.id === item.category)) {
+            if (item && !categoryElements.some(el => el.id === item.category)) {
                 const el = document.getElementById(item.category);
                 if (el) categoryElements.push(el);
             }
@@ -90,8 +87,9 @@ const DiagnosticPage6: React.FC = () => {
                 </div>
 
                 <div className="space-y-12">
-                    {diagnosticData.map((item, index) => {
-                        const showCategoryHeader = index === 0 || item.category !== diagnosticData[index - 1].category;
+                    {/* UPDATE: Added .filter(Boolean) to safely handle any empty/bad data */}
+                    {diagnosticData.filter(Boolean).map((item, index) => {
+                        const showCategoryHeader = index === 0 || item.category !== diagnosticData[index - 1]?.category;
                         return (
                             <React.Fragment key={item.name}>
                                 {showCategoryHeader && <div id={item.category} className="pt-8 -mt-8"></div>}

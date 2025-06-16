@@ -296,4 +296,4 @@ export const diagnosticData: DiagnosticItem[] = [
       "Data value is clearly demonstrated and communicated."
     ]
   }
-];
+]
