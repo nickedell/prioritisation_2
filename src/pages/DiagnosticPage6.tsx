@@ -1,6 +1,6 @@
 import React, { useContext, useMemo, useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { diagnosticData } from '../constants/diagnostic.ts';
+import { diagnosticData, DiagnosticItem } from '../constants/diagnostic.ts';
 import { MaturityContext } from '../context/MaturityContext.tsx';
 import BarChartComponent from '../components/BarChart.tsx';
 import Header from '../components/Header.tsx';
@@ -15,29 +15,13 @@ const DiagnosticPage6: React.FC = () => {
 
     const { scores, updateScore } = maturityContext;
 
+    // UPDATE: This logic is now much simpler and correct.
+    // It creates one bar for each dimension from the original data
+    // and keeps them in their original, static order.
     const chartData = useMemo(() => {
-        const subDimensionScores: { [key: string]: { total: number, count: number } } = {};
-        const getBaseSubDimension = (name: string) => name.includes(':') ? name.split(':')[0] : name;
-        const uniqueSubDimensions = [...new Set(diagnosticData.map(item => getBaseSubDimension(item.name)))];
-        uniqueSubDimensions.forEach(subDim => { subDimensionScores[subDim] = { total: 0, count: 0 }; });
-        Object.entries(scores || {}).forEach(([dimensionName, score]) => {
-            const item = diagnosticData.find(d => d.name === dimensionName);
-            if (item) {
-                const baseSubDim = getBaseSubDimension(item.name);
-                if (subDimensionScores[baseSubDim]) {
-                    subDimensionScores[baseSubDim].total += score;
-                    subDimensionScores[baseSubDim].count += 1;
-                }
-            }
-        });
-        const sortedData = Object.entries(subDimensionScores).sort(([, a], [, b]) => {
-            const scoreA = a.count > 0 ? a.total / a.count : 0;
-            const scoreB = b.count > 0 ? b.total / b.count : 0;
-            return scoreB - scoreA;
-        });
-        return sortedData.map(([subDim, data]) => ({
-            subject: subDim,
-            score: data.count > 0 ? parseFloat((data.total / data.count).toFixed(2)) : 0,
+        return diagnosticData.map(item => ({
+            subject: item.name,
+            score: scores[item.name] || 0, // Get the score from context, or default to 0
         }));
     }, [scores]);
 
