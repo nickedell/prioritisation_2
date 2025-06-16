@@ -1,17 +1,12 @@
-// src/context/MaturityContext.tsx
+import React, { createContext, useState, ReactNode, useMemo } from 'react';
 
-import React, { createContext, useState, ReactNode } from 'react';
-
-// Define the shape of our shared data
 interface MaturityContextType {
     scores: { [key: string]: number };
     updateScore: (dimensionName: string, score: number) => void;
 }
 
-// Create the context with a default value
 export const MaturityContext = createContext<MaturityContextType | undefined>(undefined);
 
-// Create a "Provider" component that will wrap our app
 export const MaturityProvider = ({ children }: { children: ReactNode }) => {
     const [scores, setScores] = useState<{ [key: string]: number }>({});
 
@@ -22,8 +17,11 @@ export const MaturityProvider = ({ children }: { children: ReactNode }) => {
         }));
     };
 
+    // This useMemo hook is critical for performance and preventing bugs
+    const value = useMemo(() => ({ scores, updateScore }), [scores]);
+
     return (
-        <MaturityContext.Provider value={{ scores, updateScore }}>
+        <MaturityContext.Provider value={value}>
             {children}
         </MaturityContext.Provider>
     );

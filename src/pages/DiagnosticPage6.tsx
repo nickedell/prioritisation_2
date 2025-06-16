@@ -16,7 +16,6 @@ const DiagnosticPage6: React.FC = () => {
 
     const { scores, updateScore } = maturityContext;
 
-    // UPDATE: Chart data logic now correctly creates three separate, un-sorted arrays.
     const chartData = useMemo(() => {
         const createChartData = (category: string) => {
             return diagnosticData
@@ -26,7 +25,6 @@ const DiagnosticPage6: React.FC = () => {
                     score: scores[item.name] || 0,
                 }));
         };
-
         return {
             strategy: createChartData('STRATEGY'),
             implementation: createChartData('IMPLEMENTATION'),
@@ -103,15 +101,15 @@ const DiagnosticPage6: React.FC = () => {
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                             <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
                                 <h3 className="text-lg font-semibold mb-2 text-center">Strategy</h3>
-                                <BarChartComponent data={chartData.strategy} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={250} />
+                                <BarChartComponent data={chartData.strategy} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={320} />
                             </div>
                             <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
                                 <h3 className="text-lg font-semibold mb-2 text-center">Implementation</h3>
-                                <BarChartComponent data={chartData.implementation} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={300} />
+                                <BarChartComponent data={chartData.implementation} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={320} />
                             </div>
                             <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
                                 <h3 className="text-lg font-semibold mb-2 text-center">Service & Value Delivery</h3>
-                                <BarChartComponent data={chartData.service} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={250} />
+                                <BarChartComponent data={chartData.service} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={320} />
                             </div>
                         </div>
                         <div className="mt-4 p-4 bg-gray-800 rounded-lg border border-gray-700 min-h-[100px]">
