@@ -12,20 +12,20 @@ interface BarChartComponentProps {
 
 const BarChartComponent: React.FC<BarChartComponentProps> = ({ data }) => {
     return (
-        <ResponsiveContainer width="100%" height={400}>
+        <ResponsiveContainer width="100%" height={450}>
             <BarChart
                 layout="vertical"
                 data={data}
                 margin={{
                     top: 5,
                     right: 30,
-                    left: 100, // Increased left margin for long labels
+                    left: 120,
                     bottom: 5,
                 }}
             >
                 <CartesianGrid strokeDasharray="3 3" stroke="#555" />
                 <XAxis type="number" domain={[0, 5]} stroke="#fff" tickCount={6} />
-                <YAxis type="category" dataKey="subject" stroke="#fff" width={150} tick={{ fontSize: 12 }} />
+                <YAxis yAxisId={0} type="category" dataKey="subject" stroke="#fff" width={150} tick={{ fontSize: 12 }} />
                 <Tooltip
                     cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
                     contentStyle={{ backgroundColor: '#333', border: 'none' }}

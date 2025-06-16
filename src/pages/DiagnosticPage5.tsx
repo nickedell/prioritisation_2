@@ -2,10 +2,10 @@ import React, { useContext, useMemo, useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { diagnosticData } from '../constants/diagnostic.ts';
 import { MaturityContext } from '../context/MaturityContext.tsx';
-import RadarChartComponent from '../components/RadarChart.tsx';
+import BarChartComponent from '../components/BarChart.tsx'; // Use the Bar Chart
 import Header from '../components/Header.tsx';
 
-const DiagnosticPage5: React.FC = () => {
+const DiagnosticPage: React.FC = () => {
     const maturityContext = useContext(MaturityContext);
     const [darkMode, setDarkMode] = useState(true);
     const stickyHeaderRef = useRef<HTMLDivElement>(null);
@@ -30,12 +30,33 @@ const DiagnosticPage5: React.FC = () => {
                 }
             }
         });
-        return Object.entries(subDimensionScores).map(([subDim, data]) => ({
+        const sortedData = Object.entries(subDimensionScores).sort(([, a], [, b]) => {
+            const scoreA = a.count > 0 ? a.total / a.count : 0;
+            const scoreB = b.count > 0 ? b.total / b.count : 0;
+            return scoreB - scoreA;
+        });
+        return sortedData.map(([subDim, data]) => ({
             subject: subDim,
             score: data.count > 0 ? parseFloat((data.total / data.count).toFixed(2)) : 0,
-            fullMark: 5,
         }));
     }, [scores]);
+
+    const handleSelectScore = (dimensionName: string, score: number, currentIndex: number) => {
+        updateScore(dimensionName, score);
+        const nextIndex = currentIndex + 1;
+        if (nextIndex < diagnosticData.length) {
+            const nextDimensionId = `dimension-card-${nextIndex}`;
+            setTimeout(() => {
+                const nextElement = document.getElementById(nextDimensionId);
+                if (nextElement && stickyHeaderRef.current) {
+                    const headerHeight = stickyHeaderRef.current.offsetHeight;
+                    const elementPosition = nextElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerHeight - 20;
+                    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                }
+            }, 150);
+        }
+    };
 
     useEffect(() => {
         const categoryElements: HTMLElement[] = [];
@@ -45,11 +66,9 @@ const DiagnosticPage5: React.FC = () => {
                 if (el) categoryElements.push(el);
             }
         });
-
         const handleScroll = () => {
             const headerBottom = stickyHeaderRef.current?.getBoundingClientRect().bottom || 0;
             let currentTopCategory = '';
-            
             for (const el of categoryElements) {
                 if (el.getBoundingClientRect().top <= headerBottom) {
                     currentTopCategory = el.id;
@@ -57,16 +76,13 @@ const DiagnosticPage5: React.FC = () => {
             }
             setVisibleCategory(currentTopCategory || 'STRATEGY');
         };
-
         window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
     const levelHeaders = [
-        'LEVEL 1 - AD HOC/REACTIVE',
-        'LEVEL 2 - MANAGED/DEFINED',
-        'LEVEL 3 - PROACTIVE/STANDARDISED',
-        'LEVEL 4 - PREDICTIVE/OPTIMISED',
+        'LEVEL 1 - AD HOC/REACTIVE', 'LEVEL 2 - MANAGED/DEFINED',
+        'LEVEL 3 - PROACTIVE/STANDARDISED', 'LEVEL 4 - PREDICTIVE/OPTIMISED',
         'LEVEL 5 - ADAPTIVE/AGILE'
     ];
 
@@ -76,13 +92,13 @@ const DiagnosticPage5: React.FC = () => {
                 <div ref={stickyHeaderRef} className={`sticky top-0 z-40 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'} pt-4 pb-4`}>
                     <Header
                         title="Maturity Diagnostic"
-                        subtitle="Select the description that best fits your organisation's current state for each dimension."
+                        subtitle="Select the cell that best fits your organisation's current state for each dimension."
                         darkMode={darkMode}
                         setDarkMode={setDarkMode}
                         showDevTag={true}
                     />
                     <div className="mb-4">
-                        <RadarChartComponent data={chartData} />
+                        <BarChartComponent data={chartData} />
                     </div>
                     <h2 className="text-2xl font-bold border-b-2 border-gray-700 pb-2">
                         {visibleCategory}
@@ -98,8 +114,6 @@ const DiagnosticPage5: React.FC = () => {
                                 <div id={`dimension-card-${index}`} className="p-6 bg-gray-800 rounded-lg border border-gray-700">
                                     <h3 className="font-semibold text-lg">{item.name}</h3>
                                     <p className="text-sm text-gray-400 mt-1 mb-6">{item.description}</p>
-                                    
-                                    {/* UPDATE: New table-based layout for scoring */}
                                     <div className="overflow-x-auto">
                                         <table className="w-full border-collapse">
                                             <thead>
@@ -120,7 +134,7 @@ const DiagnosticPage5: React.FC = () => {
                                                             <td
                                                                 key={score}
                                                                 className={`p-4 border-2 align-top cursor-pointer transition-colors ${isSelected ? 'border-purple-500' : 'border-gray-700 hover:bg-gray-700'}`}
-                                                                onClick={() => updateScore(item.name, score)}
+                                                                onClick={() => handleSelectScore(item.name, score, index)}
                                                             >
                                                                 <p className="text-sm text-gray-300">{levelText}</p>
                                                             </td>
@@ -146,4 +160,4 @@ const DiagnosticPage5: React.FC = () => {
     );
 };
 
-export default DiagnosticPage5;
+export default DiagnosticPage;
