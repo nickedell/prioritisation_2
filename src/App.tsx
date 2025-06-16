@@ -10,7 +10,7 @@ const App = () => {
     <MaturityProvider>
       <Routes>
         {/* The root path now points to our new test page */}
-        <Route path="/" element={<DiagnosticPage6 />} /> 
+      //  <Route path="/" element={<DiagnosticPage2 />} /> 
         <Route path="/prioritisation" element={<PrioritisationPage />} />
       </Routes>
     </MaturityProvider>
