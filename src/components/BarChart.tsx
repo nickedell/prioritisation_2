@@ -8,11 +8,14 @@ interface ChartData {
 
 interface BarChartComponentProps {
     data: ChartData[];
+    onMouseEnter: (data: any) => void;
+    onMouseLeave: () => void;
 }
 
-const BarChartComponent: React.FC<BarChartComponentProps> = ({ data }) => {
+const BarChartComponent: React.FC<BarChartComponentProps> = ({ data, onMouseEnter, onMouseLeave }) => {
     return (
-        <ResponsiveContainer width="100%" height={450}>
+        // UPDATE: Changed height from 450 to 350
+        <ResponsiveContainer width="100%" height={350}>
             <BarChart
                 layout="vertical"
                 data={data}
@@ -30,7 +33,8 @@ const BarChartComponent: React.FC<BarChartComponentProps> = ({ data }) => {
                     cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
                     contentStyle={{ backgroundColor: '#333', border: 'none' }}
                 />
-                <Bar dataKey="score" fill="#8884d8" barSize={20} />
+                {/* UPDATE: Added mouse events to the bar to trigger the hover effect */}
+                <Bar dataKey="score" fill="#8884d8" barSize={20} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} />
             </BarChart>
         </ResponsiveContainer>
     );
