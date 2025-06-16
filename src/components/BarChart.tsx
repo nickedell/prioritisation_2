@@ -1,27 +1,15 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-interface ChartData {
-    subject: string;
-    score: number;
-}
-
-interface BarChartComponentProps {
-    data: ChartData[];
-    onMouseEnter: (data: any) => void;
-    onMouseLeave: () => void;
-}
-
-// A custom component to render the hierarchical tick labels
+// This custom component now correctly parses the payload to create the tree view
 const CustomizedYAxisTick: React.FC<any> = (props) => {
     const { x, y, payload } = props;
 
-    // Safety check for the value
-    if (!payload || typeof payload.value === 'undefined') {
-        return null;
+    // Safety check for the value from the payload
+    if (typeof payload.value === 'undefined') {
+        return null; 
     }
 
-    // The full dimension name is in payload.value
     const name = payload.value;
     const parts = name.split(': ');
 
@@ -35,7 +23,6 @@ const CustomizedYAxisTick: React.FC<any> = (props) => {
                         dy={index > 0 ? 15 : 0} // Add vertical space for the second line
                         fontWeight={index === 0 ? 'bold' : 'normal'}
                     >
-                        {/* Add an indented arrow for sub-dimensions */}
                         {index > 0 && '↳ '}
                         {part}
                     </tspan>
@@ -46,7 +33,7 @@ const CustomizedYAxisTick: React.FC<any> = (props) => {
 };
 
 
-const BarChartComponent: React.FC<BarChartComponentProps> = ({ data, onMouseEnter, onMouseLeave }) => {
+const BarChartComponent: React.FC<any> = ({ data, onMouseEnter, onMouseLeave }) => {
     return (
         <ResponsiveContainer width="100%" height={550}>
             <BarChart
@@ -58,10 +45,11 @@ const BarChartComponent: React.FC<BarChartComponentProps> = ({ data, onMouseEnte
                 <XAxis type="number" domain={[0, 5]} stroke="#fff" tickCount={6} />
                 <YAxis
                     yAxisId={0}
-                    dataKey="subject" // The dataKey is the 'subject' from our data
+                    // The dataKey tells Recharts to use the 'name' from the 'dimension' object as the value
+                    dataKey="dimension.name"
                     type="category"
                     stroke="#fff"
-                    width={220}
+                    width={220} 
                     tick={<CustomizedYAxisTick />} // Use our custom component for rendering
                     interval={0} // Ensure every single label is rendered
                 />
