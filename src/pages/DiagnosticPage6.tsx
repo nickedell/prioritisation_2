@@ -16,7 +16,6 @@ const DiagnosticPage6: React.FC = () => {
 
     const { scores, updateScore } = maturityContext;
 
-    // UPDATE: Chart data is now grouped into three separate arrays for each chart
     const chartData = useMemo(() => {
         const createChartData = (category: string) => {
             return diagnosticData
@@ -26,7 +25,6 @@ const DiagnosticPage6: React.FC = () => {
                     score: scores[item.name] || 0,
                 }));
         };
-
         return {
             strategy: createChartData('STRATEGY'),
             implementation: createChartData('IMPLEMENTATION'),
@@ -99,95 +97,10 @@ const DiagnosticPage6: React.FC = () => {
                         setDarkMode={setDarkMode}
                         showDevTag={true}
                     />
-                    {/* UPDATE: New layout for charts and hover description */}
                     <div className="mt-4">
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                            {/* Strategy Chart */}
                             <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
                                 <h3 className="text-lg font-semibold mb-2 text-center">Strategy</h3>
                                 <BarChartComponent data={chartData.strategy} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={300} />
                             </div>
-                            {/* Implementation Chart */}
-                            <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
-                                <h3 className="text-lg font-semibold mb-2 text-center">Implementation</h3>
-                                <BarChartComponent data={chartData.implementation} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={300} />
-                            </div>
-                            {/* Service & Value Delivery Chart */}
-                            <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
-                                <h3 className="text-lg font-semibold mb-2 text-center">Service & Value Delivery</h3>
-                                <BarChartComponent data={chartData.service} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={300} />
-                            </div>
-                        </div>
-                        {/* Hover Description Panel */}
-                        <div className="mt-4 p-4 bg-gray-800 rounded-lg border border-gray-700 min-h-[100px]">
-                            <h3 className="text-lg font-semibold mb-2">Dimension Details</h3>
-                            {hoveredDimension ? (
-                                <>
-                                    <h4 className="font-bold text-white">{hoveredDimension.name}</h4>
-                                    <p className="text-sm text-gray-400 mt-2">{hoveredDimension.description}</p>
-                                </>
-                            ) : (
-                                <div className="h-full flex items-center justify-center">
-                                    <p className="text-gray-500">Hover over a bar in any chart to see details</p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                <div className="space-y-12 mt-8">
-                    {diagnosticData.filter(Boolean).map((item, index) => {
-                        const showCategoryHeader = index === 0 || item.category !== diagnosticData[index - 1]?.category;
-                        return (
-                            <React.Fragment key={item.name}>
-                                {showCategoryHeader && <div id={item.category} className="pt-8 -mt-8"></div>}
-                                <div id={`dimension-card-${index}`} className="p-6 bg-gray-800 rounded-lg border border-gray-700 scroll-mt-32">
-                                    <h3 className="font-semibold text-lg">{item.name}</h3>
-                                    <p className="text-sm text-gray-400 mt-1 mb-6">{item.description}</p>
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full border-collapse">
-                                            <thead>
-                                                <tr>
-                                                    {levelHeaders.map(header => (
-                                                        <th key={header} className={`p-3 text-left text-xs font-medium uppercase tracking-wider border border-gray-700 ${darkMode ? 'text-gray-400 bg-gray-900' : 'text-gray-500 bg-gray-200'}`}>
-                                                            {header}
-                                                        </th>
-                                                    ))}
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    {item.levels.map((levelText, levelIndex) => {
-                                                        const score = levelIndex + 1;
-                                                        const isSelected = scores[item.name] === score;
-                                                        return (
-                                                            <td
-                                                                key={score}
-                                                                className={`p-4 border-2 align-top cursor-pointer transition-colors ${isSelected ? 'border-purple-500' : 'border-gray-700 hover:bg-gray-700'}`}
-                                                                onClick={() => handleSelectScore(item.name, score, index)}
-                                                            >
-                                                                <p className="text-sm text-gray-300">{levelText}</p>
-                                                            </td>
-                                                        );
-                                                    })}
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </React.Fragment>
-                        )
-                    })}
-                </div>
-                
-                 <div className="flex justify-end mt-8">
-                    <Link to="/prioritisation" className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${darkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}>
-                        Proceed to Prioritisation Tool →
-                    </Link>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-export default DiagnosticPage6;
+                            <div className="p-4 bg-gray-80
