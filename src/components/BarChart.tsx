@@ -13,31 +13,18 @@ interface BarChartComponentProps {
     onMouseLeave: () => void;
 }
 
+// UPDATE: This custom tick component is now a temporary debugging tool
 const CustomizedYAxisTick: React.FC<any> = (props) => {
     const { x, y, payload } = props;
 
-    // UPDATE: Added a safety check to prevent crashes if the payload is not ready
-    if (!payload || !payload.payload || !payload.payload.dimension) {
-        return null; // Don't render anything if the data is malformed
-    }
-
-    const { dimension } = payload.payload as ChartData;
-    const parts = dimension.name.split(': ');
+    // We will render the raw payload object as a string to see its structure
+    // This will look messy, but it will give us the information we need
+    const dataString = JSON.stringify(payload);
 
     return (
         <g transform={`translate(${x},${y})`}>
-            <text x={0} y={0} dy={4} textAnchor="end" fill="#fff" fontSize={12}>
-                {parts.map((part, index) => (
-                    <tspan
-                        key={index}
-                        x={-10}
-                        dy={index > 0 ? 15 : 0}
-                        fontWeight={index === 0 ? 'bold' : 'normal'}
-                    >
-                        {index > 0 && '↳ '}
-                        {part}
-                    </tspan>
-                ))}
+            <text x={-10} y={0} dy={4} textAnchor="end" fill="#ff0000" fontSize={8}>
+                {dataString}
             </text>
         </g>
     );
