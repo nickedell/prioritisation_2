@@ -17,20 +17,28 @@ interface BarChartComponentProps {
 const CustomizedYAxisTick: React.FC<any> = (props) => {
     const { x, y, payload } = props;
     const name = payload.value;
-    if (typeof name !== 'string') { return null; }
+
+    if (typeof name !== 'string') {
+        return null; 
+    }
+
     const parts = name.split(': ');
 
     return (
         <g transform={`translate(${x},${y})`}>
             <text x={0} y={0} dy={4} textAnchor="end" fill="#E5E7EB" fontSize={12}>
-                <tspan x={-10} dy={parts.length > 1 ? -4 : 0} fontWeight="bold">
-                    {parts[0]}
-                </tspan>
-                {parts.length > 1 && (
-                    <tspan x={-10} dy="1.1em" fill="#9CA3AF">
-                        ↳ {parts[1]}
+                {parts.map((part, index) => (
+                    <tspan
+                        key={index}
+                        x={-10}
+                        dy={index > 0 ? 15 : 0}
+                        fontWeight={index === 0 ? 'bold' : 'normal'}
+                        fill={index > 0 ? '#9CA3AF' : '#E5E7EB'}
+                    >
+                        {index > 0 && '↳ '}
+                        {part}
                     </tspan>
-                )}
+                ))}
             </text>
         </g>
     );
@@ -40,9 +48,17 @@ const CustomizedYAxisTick: React.FC<any> = (props) => {
 const BarChartComponent: React.FC<BarChartComponentProps> = ({ data, height = 350, onMouseEnter, onMouseLeave }) => {
     return (
         <ResponsiveContainer width="100%" height={height}>
-            <BarChart layout="vertical" data={data} margin={{ top: 5, right: 30, left: 180, bottom: 20 }}>
+            <BarChart
+                layout="vertical"
+                data={data}
+                margin={{ top: 5, right: 30, left: 180, bottom: 20 }}
+            >
                 <CartesianGrid strokeDasharray="3 3" stroke="#4B5563" />
-                <XAxis type="number" domain={[0, 5]} stroke="#9CA3AF" tickCount={6} />
+                
+                {/* UPDATE: Added back the type and dataKey to the XAxis */}
+                <XAxis type="number" dataKey="score" domain={[0, 5]} stroke="#9CA3AF" tickCount={6} />
+                
+                {/* UPDATE: Added back the yAxisId to link the Bar to this axis */}
                 <YAxis
                     yAxisId={0}
                     dataKey="dimension.name"
@@ -58,7 +74,8 @@ const BarChartComponent: React.FC<BarChartComponentProps> = ({ data, height = 35
                     contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #4B5563', borderRadius: '0.5rem' }}
                     labelStyle={{ color: '#F9FAFB' }}
                 />
-                <Bar dataKey="score" fill="#8884d8" barSize={12} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} />
+                {/* UPDATE: Added yAxisId to the Bar to ensure it uses the correct axis */}
+                <Bar dataKey="score" yAxisId={0} fill="#8884d8" barSize={12} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} />
             </BarChart>
         </ResponsiveContainer>
     );
