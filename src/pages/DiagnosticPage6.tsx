@@ -89,7 +89,7 @@ const DiagnosticPage6: React.FC = () => {
     // This is a helper component to ensure all chart boxes are the same height
     const ChartBox: React.FC<{ title: string; data: any[] }> = ({ title, data }) => (
         <div className="p-4 bg-gray-800 rounded-lg border border-gray-700 flex flex-col">
-            <h3 className="text-lg font-semibold mb-2 text-center">{title}</h3>
+            <h3 className="text-lg font-semibold mb-2 ">{title}</h3>
             {/* This wrapper div will grow to fill space, pushing the chart to the bottom */}
             <div className="flex-grow flex items-end">
                 <BarChartComponent data={data} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} />
