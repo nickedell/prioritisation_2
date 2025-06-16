@@ -2,7 +2,7 @@
 
 import { Routes, Route } from 'react-router-dom';
 import { MaturityProvider } from './context/MaturityContext.tsx';
-import DiagnosticPage2 from './pages/DiagnosticPage5.tsx'; // Import the new page
+import DiagnosticPage2 from './pages/DiagnosticPage4.tsx'; // Import the new page
 import PrioritisationPage from './pages/PrioritisationPage.tsx';
 
 const App = () => {
