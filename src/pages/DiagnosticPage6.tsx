@@ -2,10 +2,10 @@ import React, { useContext, useMemo, useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { diagnosticData } from '../constants/diagnostic.ts';
 import { MaturityContext } from '../context/MaturityContext.tsx';
-import BarChartComponent from '../components/BarChart.tsx'; // UPDATE: Import BarChart instead of RadarChart
+import BarChartComponent from '../components/BarChart.tsx';
 import Header from '../components/Header.tsx';
 
-const DiagnosticPage3: React.FC = () => {
+const DiagnosticPage6: React.FC = () => {
     const maturityContext = useContext(MaturityContext);
     const [darkMode, setDarkMode] = useState(true);
     const stickyHeaderRef = useRef<HTMLDivElement>(null);
@@ -15,12 +15,29 @@ const DiagnosticPage3: React.FC = () => {
 
     const { scores, updateScore } = maturityContext;
 
-    // UPDATE: Simplified chartData logic for the bar chart.
-    // This creates one bar for each dimension and keeps them in the original order.
     const chartData = useMemo(() => {
-        return diagnosticData.map(item => ({
-            subject: item.name,
-            score: scores[item.name] || 0,
+        const subDimensionScores: { [key: string]: { total: number, count: number } } = {};
+        const getBaseSubDimension = (name: string) => name.includes(':') ? name.split(':')[0] : name;
+        const uniqueSubDimensions = [...new Set(diagnosticData.map(item => getBaseSubDimension(item.name)))];
+        uniqueSubDimensions.forEach(subDim => { subDimensionScores[subDim] = { total: 0, count: 0 }; });
+        Object.entries(scores || {}).forEach(([dimensionName, score]) => {
+            const item = diagnosticData.find(d => d.name === dimensionName);
+            if (item) {
+                const baseSubDim = getBaseSubDimension(item.name);
+                if (subDimensionScores[baseSubDim]) {
+                    subDimensionScores[baseSubDim].total += score;
+                    subDimensionScores[baseSubDim].count += 1;
+                }
+            }
+        });
+        const sortedData = Object.entries(subDimensionScores).sort(([, a], [, b]) => {
+            const scoreA = a.count > 0 ? a.total / a.count : 0;
+            const scoreB = b.count > 0 ? b.total / b.count : 0;
+            return scoreB - scoreA;
+        });
+        return sortedData.map(([subDim, data]) => ({
+            subject: subDim,
+            score: data.count > 0 ? parseFloat((data.total / data.count).toFixed(2)) : 0,
         }));
     }, [scores]);
 
@@ -49,11 +66,9 @@ const DiagnosticPage3: React.FC = () => {
                 if (el) categoryElements.push(el);
             }
         });
-
         const handleScroll = () => {
             const headerBottom = stickyHeaderRef.current?.getBoundingClientRect().bottom || 0;
             let currentTopCategory = '';
-            
             for (const el of categoryElements) {
                 if (el.getBoundingClientRect().top <= headerBottom) {
                     currentTopCategory = el.id;
@@ -61,10 +76,15 @@ const DiagnosticPage3: React.FC = () => {
             }
             setVisibleCategory(currentTopCategory || 'STRATEGY');
         };
-
         window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    const levelHeaders = [
+        'LEVEL 1 - AD HOC/REACTIVE', 'LEVEL 2 - MANAGED/DEFINED',
+        'LEVEL 3 - PROACTIVE/STANDARDISED', 'LEVEL 4 - PREDICTIVE/OPTIMISED',
+        'LEVEL 5 - ADAPTIVE/AGILE'
+    ];
 
     return (
         <div className={darkMode ? 'bg-gray-900' : 'bg-gray-50'}>
@@ -72,13 +92,12 @@ const DiagnosticPage3: React.FC = () => {
                 <div ref={stickyHeaderRef} className={`sticky top-0 z-40 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'} pt-4 pb-4`}>
                     <Header
                         title="Maturity Diagnostic"
-                        subtitle="Select the description that best fits your organisation's current state for each dimension."
+                        subtitle="Select the cell that best fits your organisation's current state for each dimension."
                         darkMode={darkMode}
                         setDarkMode={setDarkMode}
                         showDevTag={true}
                     />
                     <div className="mb-4">
-                        {/* UPDATE: Using the BarChartComponent */}
                         <BarChartComponent data={chartData} />
                     </div>
                     <h2 className="text-2xl font-bold border-b-2 border-gray-700 pb-2">
@@ -92,24 +111,38 @@ const DiagnosticPage3: React.FC = () => {
                         return (
                             <React.Fragment key={item.name}>
                                 {showCategoryHeader && <div id={item.category} className="pt-8 -mt-8"></div>}
-                                <div id={`dimension-card-${index}`} className="p-6 bg-gray-800 rounded-lg border border-gray-700 scroll-mt-[30rem]">
+                                <div id={`dimension-card-${index}`} className="p-6 bg-gray-800 rounded-lg border border-gray-700 scroll-mt-32">
                                     <h3 className="font-semibold text-lg">{item.name}</h3>
                                     <p className="text-sm text-gray-400 mt-1 mb-6">{item.description}</p>
-                                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                                        {item.levels.map((levelText, levelIndex) => {
-                                            const score = levelIndex + 1;
-                                            const isSelected = scores[item.name] === score;
-                                            return (
-                                                <div
-                                                    key={score}
-                                                    className={`p-4 border-2 rounded-md cursor-pointer transition-all h-full flex flex-col ${isSelected ? 'bg-blue-600 border-blue-400' : 'bg-gray-700 border-gray-600 hover:border-gray-500'}`}
-                                                    onClick={() => handleSelectScore(item.name, score, index)}
-                                                >
-                                                    <strong className="block text-lg mb-2">Level {score}</strong>
-                                                    <p className="text-sm text-gray-300">{levelText}</p>
-                                                </div>
-                                            );
-                                        })}
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full border-collapse">
+                                            <thead>
+                                                <tr>
+                                                    {levelHeaders.map(header => (
+                                                        <th key={header} className={`p-3 text-left text-xs font-medium uppercase tracking-wider border border-gray-700 ${darkMode ? 'text-gray-400 bg-gray-900' : 'text-gray-500 bg-gray-200'}`}>
+                                                            {header}
+                                                        </th>
+                                                    ))}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    {item.levels.map((levelText, levelIndex) => {
+                                                        const score = levelIndex + 1;
+                                                        const isSelected = scores[item.name] === score;
+                                                        return (
+                                                            <td
+                                                                key={score}
+                                                                className={`p-4 border-2 align-top cursor-pointer transition-colors ${isSelected ? 'border-purple-500' : 'border-gray-700 hover:bg-gray-700'}`}
+                                                                onClick={() => handleSelectScore(item.name, score, index)}
+                                                            >
+                                                                <p className="text-sm text-gray-300">{levelText}</p>
+                                                            </td>
+                                                        );
+                                                    })}
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </React.Fragment>
@@ -127,4 +160,4 @@ const DiagnosticPage3: React.FC = () => {
     );
 };
 
-export default DiagnosticPage3;
+export default DiagnosticPage6;
