@@ -1,31 +1,41 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { DiagnosticItem } from '../constants/diagnostic.ts';
 
+// The data for each bar is now a flat object
 interface ChartDataPoint {
-    dimension: DiagnosticItem;
+    name: string;
+    description: string;
     score: number;
 }
 
 interface BarChartComponentProps {
     data: ChartDataPoint[];
-    height?: number; // New optional height prop
     onMouseEnter: (data: any) => void;
     onMouseLeave: () => void;
 }
 
 const CustomizedYAxisTick: React.FC<any> = (props) => {
     const { x, y, payload } = props;
-    if (!payload || typeof payload.value === 'undefined') {
-        return null;
-    }
+
+    // The full dimension name is now in payload.value
     const name = payload.value;
+
+    if (typeof name === 'undefined') {
+        return null; 
+    }
+
     const parts = name.split(': ');
+
     return (
         <g transform={`translate(${x},${y})`}>
             <text x={0} y={0} dy={4} textAnchor="end" fill="#fff" fontSize={12}>
                 {parts.map((part, index) => (
-                    <tspan key={index} x={-10} dy={index > 0 ? 15 : 0} fontWeight={index === 0 ? 'bold' : 'normal'}>
+                    <tspan
+                        key={index}
+                        x={-10}
+                        dy={index > 0 ? 15 : 0}
+                        fontWeight={index === 0 ? 'bold' : 'normal'}
+                    >
                         {index > 0 && '↳ '}
                         {part}
                     </tspan>
@@ -35,15 +45,20 @@ const CustomizedYAxisTick: React.FC<any> = (props) => {
     );
 };
 
-const BarChartComponent: React.FC<BarChartComponentProps> = ({ data, height = 550, onMouseEnter, onMouseLeave }) => {
+
+const BarChartComponent: React.FC<BarChartComponentProps> = ({ data, onMouseEnter, onMouseLeave }) => {
     return (
-        <ResponsiveContainer width="100%" height={height}>
-            <BarChart layout="vertical" data={data} margin={{ top: 5, right: 30, left: 180, bottom: 5 }}>
+        <ResponsiveContainer width="100%" height={550}>
+            <BarChart
+                layout="vertical"
+                data={data}
+                margin={{ top: 5, right: 30, left: 180, bottom: 5 }}
+            >
                 <CartesianGrid strokeDasharray="3 3" stroke="#4B5563" />
                 <XAxis type="number" domain={[0, 5]} stroke="#9CA3AF" tickCount={6} />
                 <YAxis
                     yAxisId={0}
-                    dataKey="dimension.name"
+                    dataKey="name" // The dataKey is now the simple 'name' property
                     type="category"
                     stroke="#9CA3AF"
                     width={220}
