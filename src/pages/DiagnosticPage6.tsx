@@ -10,6 +10,7 @@ const DiagnosticPage6: React.FC = () => {
     const [darkMode, setDarkMode] = useState(true);
     const stickyHeaderRef = useRef<HTMLDivElement>(null);
     const [visibleCategory, setVisibleCategory] = useState('STRATEGY');
+    const [hoveredDimension, setHoveredDimension] = useState<DiagnosticItem | null>(null);
 
     if (!maturityContext) { return <div>Loading...</div>; }
 
@@ -70,6 +71,15 @@ const DiagnosticPage6: React.FC = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    const handleChartMouseEnter = (data: any) => {
+        if (data && data.payload && data.payload.dimension) {
+            setHoveredDimension(data.payload.dimension);
+        }
+    };
+    const handleChartMouseLeave = () => {
+        setHoveredDimension(null);
+    };
+
     const levelHeaders = [
         'LEVEL 1 - AD HOC/REACTIVE', 'LEVEL 2 - MANAGED/DEFINED',
         'LEVEL 3 - PROACTIVE/STANDARDISED', 'LEVEL 4 - PREDICTIVE/OPTIMISED',
@@ -88,19 +98,33 @@ const DiagnosticPage6: React.FC = () => {
                         showDevTag={true}
                     />
                     <div className="mt-4">
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        {/* UPDATE: Changed from a 3-column grid to a more flexible flex layout */}
+                        <div className="flex flex-col gap-4">
                             <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
                                 <h3 className="text-lg font-semibold mb-2 text-center">Strategy</h3>
-                                <BarChartComponent data={chartData.strategy} height={300} />
+                                <BarChartComponent data={chartData.strategy} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={250} />
                             </div>
                             <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
                                 <h3 className="text-lg font-semibold mb-2 text-center">Implementation</h3>
-                                <BarChartComponent data={chartData.implementation} height={300} />
+                                <BarChartComponent data={chartData.implementation} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={300} />
                             </div>
                             <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
                                 <h3 className="text-lg font-semibold mb-2 text-center">Service & Value Delivery</h3>
-                                <BarChartComponent data={chartData.service} height={300} />
+                                <BarChartComponent data={chartData.service} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={250} />
                             </div>
+                        </div>
+                        <div className="mt-4 p-4 bg-gray-800 rounded-lg border border-gray-700 min-h-[100px]">
+                            <h3 className="text-lg font-semibold mb-2">Dimension Details</h3>
+                            {hoveredDimension ? (
+                                <>
+                                    <h4 className="font-bold text-white">{hoveredDimension.name}</h4>
+                                    <p className="text-sm text-gray-400 mt-2">{hoveredDimension.description}</p>
+                                </>
+                            ) : (
+                                <div className="h-full flex items-center justify-center">
+                                    <p className="text-gray-500">Hover over a bar in any chart to see details</p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
