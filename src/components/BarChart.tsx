@@ -2,40 +2,36 @@ import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { DiagnosticItem } from '../constants/diagnostic.ts';
 
-// This defines the shape of the data a single bar receives
-interface ChartDataPoint {
+interface ChartData {
     dimension: DiagnosticItem;
     score: number;
 }
 
 interface BarChartComponentProps {
-    data: ChartDataPoint[];
+    data: ChartData[];
     onMouseEnter: (data: any) => void;
     onMouseLeave: () => void;
 }
 
-// This is the corrected custom component to render the hierarchical tick labels
 const CustomizedYAxisTick: React.FC<any> = (props) => {
     const { x, y, payload } = props;
 
-    // The full dimension name is in payload.value
-    const name = payload.value;
-
-    // Safety check: if there's no name, don't render anything
-    if (typeof name === 'undefined') {
-        return null; 
+    // Safety check to prevent crashes
+    if (!payload || !payload.payload || !payload.payload.dimension) {
+        return null;
     }
 
-    const parts = name.split(': ');
+    const { dimension } = payload.payload as ChartData;
+    const parts = dimension.name.split(': ');
 
     return (
-        <g transform={`translate(<span class="math-inline">\{x\},</span>{y})`}>
+        <g transform={`translate(${x},${y})`}>
             <text x={0} y={0} dy={4} textAnchor="end" fill="#fff" fontSize={12}>
                 {parts.map((part, index) => (
                     <tspan
                         key={index}
                         x={-10}
-                        dy={index > 0 ? 15 : 0} // Add vertical space for the second line
+                        dy={index > 0 ? 15 : 0}
                         fontWeight={index === 0 ? 'bold' : 'normal'}
                     >
                         {index > 0 && '↳ '}
@@ -58,6 +54,24 @@ const BarChartComponent: React.FC<BarChartComponentProps> = ({ data, onMouseEnte
             >
                 <CartesianGrid strokeDasharray="3 3" stroke="#555" />
                 <XAxis type="number" domain={[0, 5]} stroke="#fff" tickCount={6} />
+                {/* UPDATE: This component is now correctly closed */}
                 <YAxis
                     yAxisId={0}
-                    dataKey="dimension.name" // Use the unique
+                    dataKey="dimension.name"
+                    type="category"
+                    stroke="#fff"
+                    width={220}
+                    tick={<CustomizedYAxisTick />}
+                    interval={0}
+                />
+                <Tooltip
+                    cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
+                    contentStyle={{ backgroundColor: '#333', border: 'none' }}
+                />
+                <Bar dataKey="score" fill="#8884d8" barSize={15} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} />
+            </BarChart>
+        </ResponsiveContainer>
+    );
+};
+
+export default BarChartComponent;
