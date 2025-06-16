@@ -2,6 +2,7 @@ import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { DiagnosticItem } from '../constants/diagnostic.ts';
 
+// This defines the shape of the data a single bar receives
 interface ChartDataPoint {
     dimension: DiagnosticItem;
     score: number;
@@ -9,23 +10,36 @@ interface ChartDataPoint {
 
 interface BarChartComponentProps {
     data: ChartDataPoint[];
-    height?: number; // New optional height prop
+    height?: number;
     onMouseEnter: (data: any) => void;
     onMouseLeave: () => void;
 }
 
+// A custom component to render the hierarchical tick labels
 const CustomizedYAxisTick: React.FC<any> = (props) => {
     const { x, y, payload } = props;
-    if (!payload || typeof payload.value === 'undefined') {
-        return null;
-    }
+
+    // The full dimension name is in payload.value, which we get from the YAxis dataKey
     const name = payload.value;
+
+    // Safety check for the value
+    if (typeof name === 'undefined') {
+        return null; 
+    }
+
     const parts = name.split(': ');
+
     return (
         <g transform={`translate(${x},${y})`}>
             <text x={0} y={0} dy={4} textAnchor="end" fill="#fff" fontSize={12}>
                 {parts.map((part, index) => (
-                    <tspan key={index} x={-10} dy={index > 0 ? 15 : 0} fontWeight={index === 0 ? 'bold' : 'normal'}>
+                    <tspan
+                        key={index}
+                        x={-10}
+                        dy={index > 0 ? 15 : 0} // Add vertical space for the second line
+                        fontWeight={index === 0 ? 'bold' : 'normal'}
+                        fill={index > 0 ? '#9CA3AF' : '#E5E7EB'} // Style sub-dimension differently
+                    >
                         {index > 0 && '↳ '}
                         {part}
                     </tspan>
@@ -35,20 +49,25 @@ const CustomizedYAxisTick: React.FC<any> = (props) => {
     );
 };
 
+
 const BarChartComponent: React.FC<BarChartComponentProps> = ({ data, height = 550, onMouseEnter, onMouseLeave }) => {
     return (
         <ResponsiveContainer width="100%" height={height}>
-            <BarChart layout="vertical" data={data} margin={{ top: 5, right: 30, left: 180, bottom: 5 }}>
+            <BarChart
+                layout="vertical"
+                data={data}
+                margin={{ top: 5, right: 30, left: 180, bottom: 5 }}
+            >
                 <CartesianGrid strokeDasharray="3 3" stroke="#4B5563" />
                 <XAxis type="number" domain={[0, 5]} stroke="#9CA3AF" tickCount={6} />
                 <YAxis
                     yAxisId={0}
-                    dataKey="dimension.name"
+                    dataKey="dimension.name" // This tells the axis what text to display
                     type="category"
                     stroke="#9CA3AF"
                     width={220}
-                    tick={<CustomizedYAxisTick />}
-                    interval={0}
+                    tick={<CustomizedYAxisTick />} // Use our custom component for rendering
+                    interval={0} // Ensure every single label is rendered
                     tickMargin={20}
                 />
                 <Tooltip
