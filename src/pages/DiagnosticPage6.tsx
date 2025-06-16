@@ -1,5 +1,6 @@
 import React, { useContext, useMemo, useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { CheckCircle } from 'lucide-react';
 import { diagnosticData, DiagnosticItem } from '../constants/diagnostic.ts';
 import { MaturityContext } from '../context/MaturityContext.tsx';
 import BarChartComponent from '../components/BarChart.tsx';
@@ -8,18 +9,17 @@ import Header from '../components/Header.tsx';
 const DiagnosticPage6: React.FC = () => {
     const maturityContext = useContext(MaturityContext);
     const [darkMode, setDarkMode] = useState(true);
-    const stickyHeaderRef = useRef<HTMLDivElement>(null);
-    const [visibleCategory, setVisibleCategory] = useState('STRATEGY');
-    const [hoveredDimension, setHoveredDimension] = useState<DiagnosticItem | null>(null);
+    const [selectedDimension, setSelectedDimension] = useState<DiagnosticItem>(diagnosticData[0]);
+    // UPDATE: Initialize the hover state with the first dimension
+    const [hoveredDimension, setHoveredDimension] = useState<DiagnosticItem | null>(diagnosticData[0]);
 
     if (!maturityContext) { return <div>Loading...</div>; }
 
     const { scores, updateScore } = maturityContext;
 
-    // UPDATE: We are now passing the entire 'item' object as 'dimension'
     const chartData = useMemo(() => {
         return diagnosticData.filter(Boolean).map(item => ({
-            dimension: item, // Pass the full dimension object
+            dimension: item,
             score: scores[item.name] || 0,
         }));
     }, [scores]);
@@ -40,6 +40,9 @@ const DiagnosticPage6: React.FC = () => {
             }, 150);
         }
     };
+
+    const stickyHeaderRef = useRef<HTMLDivElement>(null);
+    const [visibleCategory, setVisibleCategory] = useState('STRATEGY');
 
     useEffect(() => {
         const categoryElements: HTMLElement[] = [];
@@ -63,7 +66,6 @@ const DiagnosticPage6: React.FC = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // UPDATE: The hover handlers now expect the full data payload from the chart
     const handleChartMouseEnter = (data: any) => {
         if (data && data.payload && data.payload.dimension) {
             setHoveredDimension(data.payload.dimension);
@@ -85,13 +87,14 @@ const DiagnosticPage6: React.FC = () => {
                 <div ref={stickyHeaderRef} className={`sticky top-0 z-40 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'} pt-4 pb-4`}>
                     <Header
                         title="Maturity Diagnostic"
-                        subtitle="Select the cell that best fits your organisation's current state for each dimension."
+                        subtitle="Select a dimension from the left to score its maturity."
                         darkMode={darkMode}
                         setDarkMode={setDarkMode}
                         showDevTag={true}
                     />
                     <div className="flex gap-8 items-start">
                         <div className="w-2/3">
+                             <h2 className="text-2xl font-bold mb-4">Dimension Scores</h2>
                             <BarChartComponent
                                 data={chartData}
                                 onMouseEnter={handleChartMouseEnter}
@@ -114,9 +117,6 @@ const DiagnosticPage6: React.FC = () => {
                              </div>
                         </div>
                     </div>
-                    <h2 className="text-2xl font-bold border-b-2 border-gray-700 pb-2 mt-4">
-                        {visibleCategory}
-                    </h2>
                 </div>
 
                 <div className="space-y-12">
