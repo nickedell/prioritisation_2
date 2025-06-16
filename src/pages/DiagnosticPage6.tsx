@@ -98,8 +98,8 @@ const DiagnosticPage6: React.FC = () => {
                         showDevTag={true}
                     />
                     <div className="mt-4">
-                        {/* UPDATE: Changed from a 3-column grid to a more flexible flex layout */}
-                        <div className="flex flex-col gap-4">
+                        {/* UPDATE: This grid will lay out the three charts side-by-side on large screens */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                             <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
                                 <h3 className="text-lg font-semibold mb-2 text-center">Strategy</h3>
                                 <BarChartComponent data={chartData.strategy} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={250} />
