@@ -1,9 +1,8 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { DiagnosticItem } from '../constants/diagnostic.ts';
 
 interface ChartData {
-    dimension: DiagnosticItem;
+    subject: string;
     score: number;
 }
 
@@ -13,18 +12,34 @@ interface BarChartComponentProps {
     onMouseLeave: () => void;
 }
 
-// UPDATE: This custom tick component is now a temporary debugging tool
+// A custom component to render the hierarchical tick labels
 const CustomizedYAxisTick: React.FC<any> = (props) => {
     const { x, y, payload } = props;
 
-    // We will render the raw payload object as a string to see its structure
-    // This will look messy, but it will give us the information we need
-    const dataString = JSON.stringify(payload);
+    // Safety check for the value
+    if (!payload || typeof payload.value === 'undefined') {
+        return null;
+    }
+
+    // The full dimension name is in payload.value
+    const name = payload.value;
+    const parts = name.split(': ');
 
     return (
         <g transform={`translate(${x},${y})`}>
-            <text x={-10} y={0} dy={4} textAnchor="end" fill="#ff0000" fontSize={8}>
-                {dataString}
+            <text x={0} y={0} dy={4} textAnchor="end" fill="#fff" fontSize={12}>
+                {parts.map((part, index) => (
+                    <tspan
+                        key={index}
+                        x={-10}
+                        dy={index > 0 ? 15 : 0} // Add vertical space for the second line
+                        fontWeight={index === 0 ? 'bold' : 'normal'}
+                    >
+                        {/* Add an indented arrow for sub-dimensions */}
+                        {index > 0 && '↳ '}
+                        {part}
+                    </tspan>
+                ))}
             </text>
         </g>
     );
@@ -43,12 +58,12 @@ const BarChartComponent: React.FC<BarChartComponentProps> = ({ data, onMouseEnte
                 <XAxis type="number" domain={[0, 5]} stroke="#fff" tickCount={6} />
                 <YAxis
                     yAxisId={0}
-                    dataKey="dimension.name"
+                    dataKey="subject" // The dataKey is the 'subject' from our data
                     type="category"
                     stroke="#fff"
                     width={220}
-                    tick={<CustomizedYAxisTick />}
-                    interval={0}
+                    tick={<CustomizedYAxisTick />} // Use our custom component for rendering
+                    interval={0} // Ensure every single label is rendered
                 />
                 <Tooltip
                     cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
