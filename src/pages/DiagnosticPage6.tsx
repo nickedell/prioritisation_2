@@ -1,9 +1,10 @@
 import React, { useContext, useMemo, useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { diagnosticData, DiagnosticItem } from '../constants/diagnostic.ts';
+import { diagnosticData } from '../constants/diagnostic.ts';
 import { MaturityContext } from '../context/MaturityContext.tsx';
 import BarChartComponent from '../components/BarChart.tsx';
 import Header from '../components/Header.tsx';
+import { DiagnosticItem } from '../constants/diagnostic.ts';
 
 const DiagnosticPage6: React.FC = () => {
     const maturityContext = useContext(MaturityContext);
@@ -16,7 +17,8 @@ const DiagnosticPage6: React.FC = () => {
     const { scores, updateScore } = maturityContext;
 
     const chartData = useMemo(() => {
-        return diagnosticData.map(item => ({
+        // UPDATE: Added .filter(Boolean) as a safety check
+        return diagnosticData.filter(Boolean).map(item => ({
             subject: item.name,
             score: scores[item.name] || 0,
         }));
@@ -41,8 +43,9 @@ const DiagnosticPage6: React.FC = () => {
 
     useEffect(() => {
         const categoryElements: HTMLElement[] = [];
-        diagnosticData.forEach(item => {
-            if (item && !categoryElements.some(el => el.id === item.category)) {
+        // UPDATE: Added .filter(Boolean) as a safety check
+        diagnosticData.filter(Boolean).forEach(item => {
+            if (!categoryElements.some(el => el.id === item.category)) {
                 const el = document.getElementById(item.category);
                 if (el) categoryElements.push(el);
             }
@@ -87,7 +90,7 @@ const DiagnosticPage6: React.FC = () => {
                 </div>
 
                 <div className="space-y-12">
-                    {/* UPDATE: Added .filter(Boolean) to safely handle any empty/bad data */}
+                    {/* UPDATE: Added .filter(Boolean) as a safety check */}
                     {diagnosticData.filter(Boolean).map((item, index) => {
                         const showCategoryHeader = index === 0 || item.category !== diagnosticData[index - 1]?.category;
                         return (
