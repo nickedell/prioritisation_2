@@ -13,37 +13,6 @@ interface BarChartComponentProps {
     onMouseLeave: () => void;
 }
 
-const CustomizedYAxisTick: React.FC<any> = (props) => {
-    const { x, y, payload } = props;
-
-    // Safety check to prevent crashes
-    if (!payload || !payload.payload || !payload.payload.dimension) {
-        return null;
-    }
-
-    const { dimension } = payload.payload as ChartData;
-    const parts = dimension.name.split(': ');
-
-    return (
-        <g transform={`translate(${x},${y})`}>
-            <text x={0} y={0} dy={4} textAnchor="end" fill="#fff" fontSize={12}>
-                {parts.map((part, index) => (
-                    <tspan
-                        key={index}
-                        x={-10}
-                        dy={index > 0 ? 15 : 0}
-                        fontWeight={index === 0 ? 'bold' : 'normal'}
-                    >
-                        {index > 0 && '↳ '}
-                        {part}
-                    </tspan>
-                ))}
-            </text>
-        </g>
-    );
-};
-
-
 const BarChartComponent: React.FC<BarChartComponentProps> = ({ data, onMouseEnter, onMouseLeave }) => {
     return (
         <ResponsiveContainer width="100%" height={550}>
@@ -54,16 +23,17 @@ const BarChartComponent: React.FC<BarChartComponentProps> = ({ data, onMouseEnte
             >
                 <CartesianGrid strokeDasharray="3 3" stroke="#555" />
                 <XAxis type="number" domain={[0, 5]} stroke="#fff" tickCount={6} />
-                {/* UPDATE: This component is now correctly closed */}
+                
+                {/* UPDATE: Using a standard YAxis component for debugging */}
                 <YAxis
-                    yAxisId={0}
-                    dataKey="dimension.name"
+                    dataKey="dimension.name" // This tells the axis what text to display
                     type="category"
                     stroke="#fff"
                     width={220}
-                    tick={<CustomizedYAxisTick />}
-                    interval={0}
+                    interval={0} // Ensure every label tries to render
+                    tick={{ fontSize: 10 }} // Make the font small to fit
                 />
+
                 <Tooltip
                     cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
                     contentStyle={{ backgroundColor: '#333', border: 'none' }}
