@@ -98,18 +98,19 @@ const DiagnosticPage6: React.FC = () => {
                         showDevTag={true}
                     />
                     <div className="mt-4">
-                        {/* UPDATE: This grid will lay out the three charts side-by-side on large screens */}
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        {/* UPDATE: Added lg:items-end to bottom-align the charts on large screens */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:items-end">
                             <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
-                                <h3 className="text-lg font-semibold mb-2 text-center">Strategy</h3>
+                                {/* UPDATE: Removed text-center to left-align the title */}
+                                <h3 className="text-lg font-semibold mb-2">Strategy</h3>
                                 <BarChartComponent data={chartData.strategy} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={250} />
                             </div>
                             <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
-                                <h3 className="text-lg font-semibold mb-2 text-center">Implementation</h3>
+                                <h3 className="text-lg font-semibold mb-2">Implementation</h3>
                                 <BarChartComponent data={chartData.implementation} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={300} />
                             </div>
                             <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
-                                <h3 className="text-lg font-semibold mb-2 text-center">Service & Value Delivery</h3>
+                                <h3 className="text-lg font-semibold mb-2">Service & Value Delivery</h3>
                                 <BarChartComponent data={chartData.service} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={250} />
                             </div>
                         </div>
