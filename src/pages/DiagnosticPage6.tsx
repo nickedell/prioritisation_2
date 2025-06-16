@@ -1,5 +1,6 @@
 import React, { useContext, useMemo, useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { CheckCircle } from 'lucide-react';
 import { diagnosticData, DiagnosticItem } from '../constants/diagnostic.ts';
 import { MaturityContext } from '../context/MaturityContext.tsx';
 import BarChartComponent from '../components/BarChart.tsx';
@@ -8,30 +9,25 @@ import Header from '../components/Header.tsx';
 const DiagnosticPage6: React.FC = () => {
     const maturityContext = useContext(MaturityContext);
     const [darkMode, setDarkMode] = useState(true);
-    const stickyHeaderRef = useRef<HTMLDivElement>(null);
-    const [visibleCategory, setVisibleCategory] = useState('STRATEGY');
-    const [hoveredDimension, setHoveredDimension] = useState<DiagnosticItem | null>(null);
+    const [selectedDimension, setSelectedDimension] = useState<DiagnosticItem>(diagnosticData[0]);
+    const [hoveredDimension, setHoveredDimension] = useState<DiagnosticItem | null>(diagnosticData[0]);
 
     if (!maturityContext) { return <div>Loading...</div>; }
 
     const { scores, updateScore } = maturityContext;
 
-    // UPDATE: Data is now grouped into three separate arrays for each chart
-    const chartData = useMemo(() => {
-        const createChartData = (category: string) => {
-            return diagnosticData
-                .filter(item => item && item.category === category)
-                .map(item => ({
-                    dimension: item,
-                    score: scores[item.name] || 0,
-                }));
-        };
+    const groupedData = useMemo(() => diagnosticData.reduce((acc, item) => {
+        (acc[item.category] = acc[item.category] || []).push(item);
+        return acc;
+    }, {} as Record<string, typeof diagnosticData>), []);
 
-        return {
-            strategy: createChartData('STRATEGY'),
-            implementation: createChartData('IMPLEMENTATION'),
-            service: createChartData('SERVICE & VALUE DELIVERY'),
-        };
+    // UPDATE: The data for the chart is now "flattened" for more stability
+    const chartData = useMemo(() => {
+        return diagnosticData.filter(Boolean).map(item => ({
+            name: item.name,
+            description: item.description,
+            score: scores[item.name] || 0,
+        }));
     }, [scores]);
 
     const handleSelectScore = (dimensionName: string, score: number, currentIndex: number) => {
@@ -50,6 +46,9 @@ const DiagnosticPage6: React.FC = () => {
             }, 150);
         }
     };
+
+    const stickyHeaderRef = useRef<HTMLDivElement>(null);
+    const [visibleCategory, setVisibleCategory] = useState('STRATEGY');
 
     useEffect(() => {
         const categoryElements: HTMLElement[] = [];
@@ -73,9 +72,10 @@ const DiagnosticPage6: React.FC = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    // UPDATE: The hover handlers now work with the new flat data structure
     const handleChartMouseEnter = (data: any) => {
-        if (data && data.payload && data.payload.dimension) {
-            setHoveredDimension(data.payload.dimension);
+        if (data && data.payload) {
+            setHoveredDimension(data.payload);
         }
     };
     const handleChartMouseLeave = () => {
@@ -94,43 +94,39 @@ const DiagnosticPage6: React.FC = () => {
                 <div ref={stickyHeaderRef} className={`sticky top-0 z-40 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'} pt-4 pb-4`}>
                     <Header
                         title="Maturity Diagnostic"
-                        subtitle="Select the description that best fits your organisation's current state for each dimension."
+                        subtitle="Select a dimension from the left to score its maturity."
                         darkMode={darkMode}
                         setDarkMode={setDarkMode}
                         showDevTag={true}
                     />
-                    {/* UPDATE: Restored the three-column grid for the charts */}
-                    <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
-                        <div>
-                            <h3 className="text-lg font-semibold mb-2 text-center">Strategy</h3>
-                            <BarChartComponent data={chartData.strategy} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={250} />
+                    <div className="flex gap-8 items-start">
+                        <div className="w-2/3">
+                             <h2 className="text-2xl font-bold mb-4">Dimension Scores</h2>
+                            <BarChartComponent
+                                data={chartData}
+                                onMouseEnter={handleChartMouseEnter}
+                                onMouseLeave={handleChartMouseLeave}
+                            />
                         </div>
-                        <div>
-                            <h3 className="text-lg font-semibold mb-2 text-center">Implementation</h3>
-                            <BarChartComponent data={chartData.implementation} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={250} />
+                        <div className="w-1/3 mt-12">
+                             <h3 className="text-lg font-semibold mb-2">Dimension Details</h3>
+                             <div className="p-4 bg-gray-900 rounded-md h-80">
+                                {hoveredDimension ? (
+                                    <>
+                                        <h4 className="font-bold text-white">{hoveredDimension.name}</h4>
+                                        <p className="text-sm text-gray-400 mt-2">{hoveredDimension.description}</p>
+                                    </>
+                                ) : (
+                                    <div className="h-full flex items-center justify-center">
+                                        <p className="text-gray-500">Hover over a bar to see details</p>
+                                    </div>
+                                )}
+                             </div>
                         </div>
-                        <div>
-                            <h3 className="text-lg font-semibold mb-2 text-center">Service & Value Delivery</h3>
-                            <BarChartComponent data={chartData.service} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={250} />
-                        </div>
-                    </div>
-                     {/* The hover panel is now outside the grid */}
-                    <div className="mt-4 p-4 bg-gray-800 rounded-lg border border-gray-700 min-h-[100px]">
-                        <h3 className="text-lg font-semibold mb-2">Dimension Details</h3>
-                        {hoveredDimension ? (
-                            <>
-                                <h4 className="font-bold text-white">{hoveredDimension.name}</h4>
-                                <p className="text-sm text-gray-400 mt-2">{hoveredDimension.description}</p>
-                            </>
-                        ) : (
-                            <div className="h-full flex items-center justify-center">
-                                <p className="text-gray-500">Hover over a bar in any chart to see details</p>
-                            </div>
-                        )}
                     </div>
                 </div>
 
-                <div className="space-y-12 mt-8">
+                <div className="space-y-12">
                     {diagnosticData.filter(Boolean).map((item, index) => {
                         const showCategoryHeader = index === 0 || item.category !== diagnosticData[index - 1]?.category;
                         return (
