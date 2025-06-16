@@ -1,8 +1,9 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { DiagnosticItem } from '../constants/diagnostic.ts';
 
 interface ChartData {
-    subject: string;
+    dimension: DiagnosticItem;
     score: number;
 }
 
@@ -12,29 +13,56 @@ interface BarChartComponentProps {
     onMouseLeave: () => void;
 }
 
+// NEW: A custom component to render the hierarchical tick labels
+const CustomizedYAxisTick: React.FC<any> = ({ x, y, payload }) => {
+    const { dimension } = payload.value as ChartData;
+    const parts = dimension.name.split(': ');
+
+    return (
+        <g transform={`translate(${x},${y})`}>
+            <text x={0} y={0} dy={4} textAnchor="end" fill="#fff" fontSize={12}>
+                {parts.map((part, index) => (
+                    <tspan key={index} x={-10} dy={index > 0 ? 15 : 0} fontWeight={index === 0 ? 'bold' : 'normal'}>
+                        {index > 0 && '↳ '}
+                        {part}
+                    </tspan>
+                ))}
+            </text>
+        </g>
+    );
+};
+
+
 const BarChartComponent: React.FC<BarChartComponentProps> = ({ data, onMouseEnter, onMouseLeave }) => {
     return (
-        // UPDATE: Changed height from 450 to 350
-        <ResponsiveContainer width="100%" height={350}>
+        <ResponsiveContainer width="100%" height={500}>
             <BarChart
                 layout="vertical"
                 data={data}
                 margin={{
                     top: 5,
                     right: 30,
-                    left: 120,
+                    left: 150, // Increased left margin for the tree labels
                     bottom: 5,
                 }}
             >
                 <CartesianGrid strokeDasharray="3 3" stroke="#555" />
                 <XAxis type="number" domain={[0, 5]} stroke="#fff" tickCount={6} />
-                <YAxis yAxisId={0} type="category" dataKey="subject" stroke="#fff" width={150} tick={{ fontSize: 12 }} />
+                {/* UPDATE: Using the new custom tick component */}
+                <YAxis
+                    yAxisId={0}
+                    dataKey="dimension.name"
+                    type="category"
+                    stroke="#fff"
+                    width={200}
+                    tick={<CustomizedYAxisTick />}
+                    interval={0}
+                />
                 <Tooltip
                     cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
                     contentStyle={{ backgroundColor: '#333', border: 'none' }}
                 />
-                {/* UPDATE: Added mouse events to the bar to trigger the hover effect */}
-                <Bar dataKey="score" fill="#8884d8" barSize={20} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} />
+                <Bar dataKey="score" fill="#8884d8" barSize={15} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} />
             </BarChart>
         </ResponsiveContainer>
     );
