@@ -18,9 +18,7 @@ const CustomizedYAxisTick: React.FC<any> = (props) => {
     const { x, y, payload } = props;
     const name = payload.value;
 
-    if (typeof name !== 'string') {
-        return null; 
-    }
+    if (typeof name !== 'string') { return null; }
 
     const parts = name.split(': ');
 
@@ -44,8 +42,7 @@ const CustomizedYAxisTick: React.FC<any> = (props) => {
     );
 };
 
-
-const BarChartComponent: React.FC<BarChartComponentProps> = ({ data, height = 350, onMouseEnter, onMouseLeave }) => {
+const BarChartComponent: React.FC<BarChartComponentProps> = ({ data, height = 800, onMouseEnter, onMouseLeave }) => {
     return (
         <ResponsiveContainer width="100%" height={height}>
             <BarChart
@@ -54,11 +51,7 @@ const BarChartComponent: React.FC<BarChartComponentProps> = ({ data, height = 35
                 margin={{ top: 5, right: 30, left: 180, bottom: 20 }}
             >
                 <CartesianGrid strokeDasharray="3 3" stroke="#4B5563" />
-                
-                {/* UPDATE: Added back the type and dataKey to the XAxis */}
-                <XAxis type="number" dataKey="score" domain={[0, 5]} stroke="#9CA3AF" tickCount={6} />
-                
-                {/* UPDATE: Added back the yAxisId to link the Bar to this axis */}
+                <XAxis type="number" domain={[0, 5]} stroke="#9CA3AF" tickCount={6} />
                 <YAxis
                     yAxisId={0}
                     dataKey="dimension.name"
@@ -74,7 +67,6 @@ const BarChartComponent: React.FC<BarChartComponentProps> = ({ data, height = 35
                     contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #4B5563', borderRadius: '0.5rem' }}
                     labelStyle={{ color: '#F9FAFB' }}
                 />
-                {/* UPDATE: Added yAxisId to the Bar to ensure it uses the correct axis */}
                 <Bar dataKey="score" yAxisId={0} fill="#8884d8" barSize={12} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} />
             </BarChart>
         </ResponsiveContainer>

@@ -1,25 +1,18 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { CheckCircle } from 'lucide-react';
-import { diagnosticData, DiagnosticItem } from '../constants/diagnostic.ts';
+import { diagnosticData } from '../constants/diagnostic.ts';
 import { MaturityContext } from '../context/MaturityContext.tsx';
 import BarChartComponent from '../components/BarChart.tsx';
 import Header from '../components/Header.tsx';
 
-const DiagnosticPage: React.FC = () => {
+const DiagnosticPage6: React.FC = () => {
     const maturityContext = useContext(MaturityContext);
     const [darkMode, setDarkMode] = useState(true);
-    const [selectedDimension, setSelectedDimension] = useState<DiagnosticItem>(diagnosticData[0]);
-    const [hoveredDimension, setHoveredDimension] = useState<DiagnosticItem | null>(diagnosticData[0]);
+    const [hoveredDimension, setHoveredDimension] = useState<any>(null);
 
     if (!maturityContext) { return <div>Loading...</div>; }
 
     const { scores, updateScore } = maturityContext;
-
-    const groupedData = useMemo(() => diagnosticData.reduce((acc, item) => {
-        (acc[item.category] = acc[item.category] || []).push(item);
-        return acc;
-    }, {} as Record<string, typeof diagnosticData>), []);
 
     const chartData = useMemo(() => {
         return diagnosticData.filter(Boolean).map(item => ({
@@ -36,106 +29,87 @@ const DiagnosticPage: React.FC = () => {
     const handleChartMouseLeave = () => {
         setHoveredDimension(null);
     };
+    
+    const levelHeaders = [
+        'LEVEL 1 - AD HOC/REACTIVE', 'LEVEL 2 - MANAGED/DEFINED',
+        'LEVEL 3 - PROACTIVE/STANDARDISED', 'LEVEL 4 - PREDICTIVE/OPTIMISED',
+        'LEVEL 5 - ADAPTIVE/AGILE'
+    ];
 
     return (
         <div className={darkMode ? 'bg-gray-900' : 'bg-gray-50'}>
             <div className={`max-w-7xl mx-auto p-6 min-h-screen ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>
                 <Header
                     title="Maturity Diagnostic"
-                    subtitle="Select a dimension from the left to score its maturity."
+                    subtitle="Select the cell that best fits your organisation's current state for each dimension."
                     darkMode={darkMode}
                     setDarkMode={setDarkMode}
                     showDevTag={true}
                 />
                 
-                <div className="flex flex-col md:flex-row gap-8">
-                    {/* --- Left Sidebar Navigation --- */}
-                    <aside className="w-full md:w-1/3 lg:w-1/4">
-                        <div className="sticky top-8">
-                            <h3 className="font-semibold mb-3">Diagnostic Dimensions</h3>
-                            <div className="space-y-4">
-                                {Object.entries(groupedData).map(([category, items]) => (
-                                    <div key={category}>
-                                        <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">{category}</h4>
-                                        <ul className="space-y-1">
-                                            {items.map(item => (
-                                                <li key={item.name}>
-                                                    <button 
-                                                        onClick={() => setSelectedDimension(item)}
-                                                        className={`w-full text-left p-2 rounded-md text-sm flex items-center justify-between ${selectedDimension.name === item.name ? 'bg-blue-600 text-white' : 'hover:bg-gray-800'}`}
-                                                    >
-                                                        <span>{item.name}</span>
-                                                        {scores[item.name] && <CheckCircle className="w-4 h-4 text-green-400" />}
-                                                    </button>
-                                                </li>
+                <div className="p-6 bg-gray-800 rounded-lg border border-gray-700 mb-8">
+                    <h2 className="text-2xl font-bold mb-2">Maturity Overview</h2>
+                    <p className="text-sm text-gray-400 mb-4">This chart summarises your scores. Hover over a bar for more details.</p>
+                    {hoveredDimension && (
+                        <div className="p-3 mb-4 bg-gray-900 rounded-md">
+                            <h4 className="font-bold text-white">{hoveredDimension.name}</h4>
+                            <p className="text-sm text-gray-400 mt-1">{hoveredDimension.description}</p>
+                        </div>
+                    )}
+                    <BarChartComponent
+                        data={chartData}
+                        onMouseEnter={handleChartMouseEnter}
+                        onMouseLeave={handleChartMouseLeave}
+                    />
+                </div>
+
+                <div className="space-y-8">
+                    {diagnosticData.filter(Boolean).map((item, index) => (
+                        <div key={item.name} id={`dimension-card-${index}`} className="p-6 bg-gray-800 rounded-lg border border-gray-700">
+                            <h3 className="font-semibold text-lg">{item.name}</h3>
+                            <p className="text-sm text-gray-400 mt-1 mb-6">{item.description}</p>
+                            <div className="overflow-x-auto">
+                                <table className="w-full border-collapse">
+                                    <thead>
+                                        <tr>
+                                            {levelHeaders.map(header => (
+                                                <th key={header} className={`p-3 text-left text-xs font-medium uppercase tracking-wider border border-gray-700 ${darkMode ? 'text-gray-400 bg-gray-900' : 'text-gray-500 bg-gray-200'}`}>
+                                                    {header}
+                                                </th>
                                             ))}
-                                        </ul>
-                                    </div>
-                                ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            {item.levels.map((levelText, levelIndex) => {
+                                                const score = levelIndex + 1;
+                                                const isSelected = scores[item.name] === score;
+                                                return (
+                                                    <td
+                                                        key={score}
+                                                        className={`p-4 border-2 align-top cursor-pointer transition-colors ${isSelected ? 'border-purple-500' : 'border-gray-700 hover:bg-gray-700'}`}
+                                                        onClick={() => updateScore(item.name, score)}
+                                                    >
+                                                        <p className="text-sm text-gray-300">{levelText}</p>
+                                                    </td>
+                                                );
+                                            })}
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                    </aside>
-
-                    {/* --- Main Content Area --- */}
-                    <main className="flex-1">
-                        <div className="p-6 bg-gray-800 rounded-lg border border-gray-700 mb-8 flex gap-8 items-start">
-                            <div className="w-2/3">
-                                <h2 className="text-2xl font-bold mb-4">Dimension Scores</h2>
-                                <BarChartComponent
-                                    data={chartData}
-                                    onMouseEnter={handleChartMouseEnter}
-                                    onMouseLeave={handleChartMouseLeave}
-                                />
-                            </div>
-                            <div className="w-1/3 mt-12">
-                                <h3 className="text-lg font-semibold mb-2">Dimension Details</h3>
-                                <div className="p-4 bg-gray-900 rounded-md h-80">
-                                    {hoveredDimension ? (
-                                        <>
-                                            <h4 className="font-bold text-white">{hoveredDimension.name}</h4>
-                                            <p className="text-sm text-gray-400 mt-2">{hoveredDimension.description}</p>
-                                        </>
-                                    ) : (
-                                        <div className="h-full flex items-center justify-center">
-                                            <p className="text-gray-500">Hover over a bar to see details</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        {selectedDimension && (
-                            <div className="p-6 bg-gray-800 rounded-lg border border-gray-700">
-                                <h2 className="text-2xl font-bold">{selectedDimension.name}</h2>
-                                <p className="text-md text-gray-400 mt-1 mb-6">{selectedDimension.description}</p>
-                                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                                    {selectedDimension.levels.map((levelText, levelIndex) => {
-                                        const score = index + 1;
-                                        const isSelected = scores[selectedDimension.name] === score;
-                                        return (
-                                            <div
-                                                key={score}
-                                                className={`p-4 border-2 rounded-md cursor-pointer transition-all h-full flex flex-col ${isSelected ? 'bg-blue-600 border-blue-400' : 'bg-gray-700 border-gray-600 hover:border-gray-500'}`}
-                                                onClick={() => updateScore(selectedDimension.name, score)}
-                                            >
-                                                <strong className="block text-lg mb-2">Level {score}</strong>
-                                                <p className="text-sm text-gray-300">{levelText}</p>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        )}
-                        <div className="flex justify-end mt-8">
-                            <Link to="/prioritisation" className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${darkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}>
-                                Proceed to Prioritisation Tool →
-                            </Link>
-                        </div>
-                    </main>
+                    ))}
+                </div>
+                
+                 <div className="flex justify-end mt-8">
+                    <Link to="/prioritisation" className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${darkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}>
+                        Proceed to Prioritisation Tool →
+                    </Link>
                 </div>
             </div>
         </div>
     );
 };
 
-export default DiagnosticPage;
+export default DiagnosticPage6;
