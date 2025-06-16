@@ -4,14 +4,12 @@ import { diagnosticData, DiagnosticItem } from '../constants/diagnostic.ts';
 import { MaturityContext } from '../context/MaturityContext.tsx';
 import BarChartComponent from '../components/BarChart.tsx';
 import Header from '../components/Header.tsx';
-import DiagnosticQuestionList from '../components/DiagnosticQuestionList.tsx'; // Import the new component
 
 const DiagnosticPage6: React.FC = () => {
     const maturityContext = useContext(MaturityContext);
     const [darkMode, setDarkMode] = useState(true);
     const stickyHeaderRef = useRef<HTMLDivElement>(null);
     const [visibleCategory, setVisibleCategory] = useState('STRATEGY');
-    const [hoveredDimension, setHoveredDimension] = useState<DiagnosticItem | null>(null);
 
     if (!maturityContext) { return <div>Loading...</div>; }
 
@@ -72,14 +70,11 @@ const DiagnosticPage6: React.FC = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    const handleChartMouseEnter = (data: any) => {
-        if (data && data.payload && data.payload.dimension) {
-            setHoveredDimension(data.payload.dimension);
-        }
-    };
-    const handleChartMouseLeave = () => {
-        setHoveredDimension(null);
-    };
+    const levelHeaders = [
+        'LEVEL 1 - AD HOC/REACTIVE', 'LEVEL 2 - MANAGED/DEFINED',
+        'LEVEL 3 - PROACTIVE/STANDARDISED', 'LEVEL 4 - PREDICTIVE/OPTIMISED',
+        'LEVEL 5 - ADAPTIVE/AGILE'
+    ];
 
     return (
         <div className={darkMode ? 'bg-gray-900' : 'bg-gray-50'}>
@@ -96,40 +91,63 @@ const DiagnosticPage6: React.FC = () => {
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                             <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
                                 <h3 className="text-lg font-semibold mb-2 text-center">Strategy</h3>
-                                <BarChartComponent data={chartData.strategy} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={250} />
+                                <BarChartComponent data={chartData.strategy} height={300} />
                             </div>
                             <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
                                 <h3 className="text-lg font-semibold mb-2 text-center">Implementation</h3>
-                                <BarChartComponent data={chartData.implementation} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={300} />
+                                <BarChartComponent data={chartData.implementation} height={300} />
                             </div>
                             <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
                                 <h3 className="text-lg font-semibold mb-2 text-center">Service & Value Delivery</h3>
-                                <BarChartComponent data={chartData.service} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={250} />
+                                <BarChartComponent data={chartData.service} height={300} />
                             </div>
-                        </div>
-                        <div className="mt-4 p-4 bg-gray-800 rounded-lg border border-gray-700 min-h-[100px]">
-                            <h3 className="text-lg font-semibold mb-2">Dimension Details</h3>
-                            {hoveredDimension ? (
-                                <>
-                                    <h4 className="font-bold text-white">{hoveredDimension.name}</h4>
-                                    <p className="text-sm text-gray-400 mt-2">{hoveredDimension.description}</p>
-                                </>
-                            ) : (
-                                <div className="h-full flex items-center justify-center">
-                                    <p className="text-gray-500">Hover over a bar in any chart to see details</p>
-                                </div>
-                            )}
                         </div>
                     </div>
                 </div>
 
-                <div className="mt-8">
-                    <DiagnosticQuestionList
-                        scores={scores}
-                        updateScore={updateScore}
-                        handleSelectScore={handleSelectScore}
-                        darkMode={darkMode}
-                    />
+                <div className="space-y-12 mt-8">
+                    {diagnosticData.filter(Boolean).map((item, index) => {
+                        const showCategoryHeader = index === 0 || item.category !== diagnosticData[index - 1]?.category;
+                        return (
+                            <React.Fragment key={item.name}>
+                                {showCategoryHeader && <div id={item.category} className="pt-8 -mt-8"></div>}
+                                <div id={`dimension-card-${index}`} className="p-6 bg-gray-800 rounded-lg border border-gray-700 scroll-mt-32">
+                                    <h3 className="font-semibold text-lg">{item.name}</h3>
+                                    <p className="text-sm text-gray-400 mt-1 mb-6">{item.description}</p>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full border-collapse">
+                                            <thead>
+                                                <tr>
+                                                    {levelHeaders.map(header => (
+                                                        <th key={header} className={`p-3 text-left text-xs font-medium uppercase tracking-wider border border-gray-700 ${darkMode ? 'text-gray-400 bg-gray-900' : 'text-gray-500 bg-gray-200'}`}>
+                                                            {header}
+                                                        </th>
+                                                    ))}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    {item.levels.map((levelText, levelIndex) => {
+                                                        const score = levelIndex + 1;
+                                                        const isSelected = scores[item.name] === score;
+                                                        return (
+                                                            <td
+                                                                key={score}
+                                                                className={`p-4 border-2 align-top cursor-pointer transition-colors ${isSelected ? 'border-purple-500' : 'border-gray-700 hover:bg-gray-700'}`}
+                                                                onClick={() => handleSelectScore(item.name, score, index)}
+                                                            >
+                                                                <p className="text-sm text-gray-300">{levelText}</p>
+                                                            </td>
+                                                        );
+                                                    })}
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </React.Fragment>
+                        )
+                    })}
                 </div>
                 
                  <div className="flex justify-end mt-8">
