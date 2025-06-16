@@ -2,7 +2,6 @@ import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { DiagnosticItem } from '../constants/diagnostic.ts';
 
-// This defines the shape of the data a single bar receives
 interface ChartDataPoint {
     dimension: DiagnosticItem;
     score: number;
@@ -19,11 +18,11 @@ interface BarChartComponentProps {
 const CustomizedYAxisTick: React.FC<any> = (props) => {
     const { x, y, payload } = props;
 
-    // The full dimension name is in payload.value, which we get from the YAxis dataKey
+    // The full dimension name is in payload.value
     const name = payload.value;
 
-    // Safety check for the value
-    if (typeof name === 'undefined') {
+    // A safety check to prevent rendering if the name is not yet available
+    if (typeof name !== 'string') {
         return null; 
     }
 
@@ -31,7 +30,7 @@ const CustomizedYAxisTick: React.FC<any> = (props) => {
 
     return (
         <g transform={`translate(${x},${y})`}>
-            <text x={0} y={0} dy={4} textAnchor="end" fill="#fff" fontSize={12}>
+            <text x={0} y={0} dy={4} textAnchor="end" fill="#E5E7EB" fontSize={12}>
                 {parts.map((part, index) => (
                     <tspan
                         key={index}
@@ -40,6 +39,7 @@ const CustomizedYAxisTick: React.FC<any> = (props) => {
                         fontWeight={index === 0 ? 'bold' : 'normal'}
                         fill={index > 0 ? '#9CA3AF' : '#E5E7EB'} // Style sub-dimension differently
                     >
+                        {/* Add an indented arrow for sub-dimensions */}
                         {index > 0 && '↳ '}
                         {part}
                     </tspan>
