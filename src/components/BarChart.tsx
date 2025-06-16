@@ -2,59 +2,43 @@ import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { DiagnosticItem } from '../constants/diagnostic.ts';
 
-interface ChartData {
+interface ChartDataPoint {
     dimension: DiagnosticItem;
     score: number;
 }
 
 interface BarChartComponentProps {
-    data: ChartData[];
+    data: ChartDataPoint[];
+    height?: number; // New optional height prop
     onMouseEnter: (data: any) => void;
     onMouseLeave: () => void;
 }
 
-// UPDATE: This component is now styled to be more legible.
 const CustomizedYAxisTick: React.FC<any> = (props) => {
     const { x, y, payload } = props;
-
-    if (typeof payload.value === 'undefined') {
-        return null; 
+    if (!payload || typeof payload.value === 'undefined') {
+        return null;
     }
-
     const name = payload.value;
     const parts = name.split(': ');
-
-    // Main dimension part (e.g., "Governance")
-    const primaryText = parts[0];
-    // Sub-dimension part (e.g., "Risk Management"), if it exists
-    const secondaryText = parts.length > 1 ? parts[1] : null;
-
     return (
         <g transform={`translate(${x},${y})`}>
-            <text x={0} y={0} dy={4} textAnchor="end" fill="#E5E7EB" fontSize={12}>
-                <tspan x={-10} dy={0} fontWeight="bold">
-                    {primaryText}
-                </tspan>
-                {/* If there is a second part, render it on a new line and indented */}
-                {secondaryText && (
-                    <tspan x={-10} dy="1.2em" fill="#9CA3AF">
-                        ↳ {secondaryText}
+            <text x={0} y={0} dy={4} textAnchor="end" fill="#fff" fontSize={12}>
+                {parts.map((part, index) => (
+                    <tspan key={index} x={-10} dy={index > 0 ? 15 : 0} fontWeight={index === 0 ? 'bold' : 'normal'}>
+                        {index > 0 && '↳ '}
+                        {part}
                     </tspan>
-                )}
+                ))}
             </text>
         </g>
     );
 };
 
-
-const BarChartComponent: React.FC<BarChartComponentProps> = ({ data, onMouseEnter, onMouseLeave }) => {
+const BarChartComponent: React.FC<BarChartComponentProps> = ({ data, height = 550, onMouseEnter, onMouseLeave }) => {
     return (
-        <ResponsiveContainer width="100%" height={550}>
-            <BarChart
-                layout="vertical"
-                data={data}
-                margin={{ top: 5, right: 30, left: 180, bottom: 5 }}
-            >
+        <ResponsiveContainer width="100%" height={height}>
+            <BarChart layout="vertical" data={data} margin={{ top: 5, right: 30, left: 180, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#4B5563" />
                 <XAxis type="number" domain={[0, 5]} stroke="#9CA3AF" tickCount={6} />
                 <YAxis
@@ -65,7 +49,6 @@ const BarChartComponent: React.FC<BarChartComponentProps> = ({ data, onMouseEnte
                     width={220}
                     tick={<CustomizedYAxisTick />}
                     interval={0}
-                    // Add extra space between ticks for multi-line labels
                     tickMargin={20}
                 />
                 <Tooltip
