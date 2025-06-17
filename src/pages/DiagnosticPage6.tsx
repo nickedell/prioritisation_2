@@ -16,21 +16,26 @@ const DiagnosticPage6: React.FC = () => {
 
     const { scores, updateScore } = maturityContext;
 
-    const chartData = useMemo(() => {
-        const createChartData = (category: string) => {
-            return diagnosticData
+    // UPDATE: This logic is now fully data-driven. It finds the categories
+    // from the data itself, rather than using hard-coded names.
+    const charts = useMemo(() => {
+        const categories = [...new Set(diagnosticData.map(item => item.category))]; // Get unique categories
+        
+        return categories.map(category => ({
+            title: category,
+            data: diagnosticData
                 .filter(item => item && item.category === category)
                 .map(item => ({
                     dimension: item,
                     score: scores[item.name] || 0,
-                }));
-        };
-        return {
-            strategy: createChartData('STRATEGY'),
-            implementation: createChartData('IMPLEMENTATION'),
-            service: createChartData('SERVICE & VALUE DELIVERY'),
-        };
+                }))
+        }));
     }, [scores]);
+
+    const groupedData = useMemo(() => diagnosticData.reduce((acc, item) => {
+        (acc[item.category] = acc[item.category] || []).push(item);
+        return acc;
+    }, {} as Record<string, typeof diagnosticData>), []);
 
     const handleSelectScore = (dimensionName: string, score: number, currentIndex: number) => {
         updateScore(dimensionName, score);
@@ -65,11 +70,11 @@ const DiagnosticPage6: React.FC = () => {
                     currentTopCategory = el.id;
                 }
             }
-            setVisibleCategory(currentTopCategory || 'STRATEGY');
+            setVisibleCategory(currentTopCategory || (charts[0]?.title || ''));
         };
         window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    }, [charts]);
 
     const handleChartMouseEnter = (data: any) => {
         if (data && data.payload && data.payload.dimension) {
@@ -86,17 +91,6 @@ const DiagnosticPage6: React.FC = () => {
         'LEVEL 5 - ADAPTIVE/AGILE'
     ];
 
-    // This is a helper component to ensure all chart boxes are the same height
-    const ChartBox: React.FC<{ title: string; data: any[] }> = ({ title, data }) => (
-        <div className="p-4 bg-gray-800 rounded-lg border border-gray-700 flex flex-col">
-            <h3 className="text-lg font-semibold mb-2 ">{title}</h3>
-            {/* This wrapper div will grow to fill space, pushing the chart to the bottom */}
-            <div className="flex-grow flex items-end">
-                <BarChartComponent data={data} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} />
-            </div>
-        </div>
-    );
-
     return (
         <div className={darkMode ? 'bg-gray-900' : 'bg-gray-50'}>
             <div className={`max-w-7xl mx-auto p-6 min-h-screen ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>
@@ -109,11 +103,14 @@ const DiagnosticPage6: React.FC = () => {
                         showDevTag={true}
                     />
                     <div className="mt-4">
-                        {/* UPDATE: The grid items will now stretch to the same height */}
+                        {/* UPDATE: The grid now dynamically creates a chart for each category found in the data */}
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                           <ChartBox title="Strategy" data={chartData.strategy} />
-                           <ChartBox title="Implementation" data={chartData.implementation} />
-                           <ChartBox title="Service & Value Delivery" data={chartData.service} />
+                            {charts.map(chart => (
+                                <div key={chart.title} className="p-4 bg-gray-800 rounded-lg border border-gray-700">
+                                    <h3 className="text-lg font-semibold mb-2 text-center">{chart.title}</h3>
+                                    <BarChartComponent data={chart.data} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={300} />
+                                </div>
+                            ))}
                         </div>
                         <div className="mt-4 p-4 bg-gray-800 rounded-lg border border-gray-700 min-h-[100px]">
                             <h3 className="text-lg font-semibold mb-2">Dimension Details</h3>
