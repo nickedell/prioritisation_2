@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import Header from './components/Header';
 import DiagnosticPage6 from './pages/DiagnosticPage6';
-import PrioritisationResults from './pages/PrioritisationResults.tsx';
+import PrioritisationResults from './components/PrioritisationResults.tsx';
 
 function App() {
   const [mode, setMode] = useState<'light' | 'dark'>('dark');
