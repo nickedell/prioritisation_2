@@ -1,129 +1,148 @@
-import React, { useContext, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { diagnosticData, DiagnosticItem } from '../constants/diagnostic.ts';
-import { MaturityContext } from '../context/MaturityContext.tsx';
-import BarChartComponent from '../components/BarChart.tsx';
-import Header from '../components/Header.tsx';
-import DiagnosticQuestionList from '../components/DiagnosticQuestionList.tsx';
+// src/pages/DiagnosticPage6.tsx
 
-// NEW: Define the possible tabs
-type Tab = 'STRATEGY' | 'IMPLEMENTATION' | 'SERVICE & VALUE DELIVERY' | 'SUMMARY';
+import React, { useState, useRef, useEffect } from 'react'; // 1. Import useEffect
+import { Tabs, Tab, Box } from '@mui/material';
+import { Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import VisionAndMission from '../components/dimensions/VisionAndMission';
+import DataPrinciples from '../components/dimensions/DataPrinciples';
 
-const DiagnosticPage6: React.FC = () => {
-    const maturityContext = useContext(MaturityContext);
-    const [darkMode, setDarkMode] = useState(true);
-    // NEW: State to manage the active tab
-    const [activeTab, setActiveTab] = useState<Tab>('STRATEGY');
-    const [hoveredDimension, setHoveredDimension] = useState<DiagnosticItem | null>(null);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
-    if (!maturityContext) { return <div>Loading...</div>; }
+// 2. Define the interface for the props we now receive from App.tsx
+interface DiagnosticPageProps {
+  setPageActions: (actions: { onImport?: () => void; onExport?: () => void; }) => void;
+}
 
-    const { scores, updateScore } = maturityContext;
+const DiagnosticPage6: React.FC<DiagnosticPageProps> = ({ setPageActions }) => { // 3. Accept setPageActions
+  const [selectedTab, setSelectedTab] = useState(0);
 
-    // UPDATE: Chart data logic now filters based on the active tab
-    const chartData = useMemo(() => {
-        const category = activeTab !== 'SUMMARY' ? activeTab : '';
-        return diagnosticData
-            .filter(item => item && (activeTab === 'SUMMARY' || item.category === category))
-            .map(item => ({
-                dimension: item,
-                score: scores[item.name] || 0,
-            }));
-    }, [scores, activeTab]);
-    
-    // NEW: Memoized list of questions to show based on the active tab
-    const visibleQuestions = useMemo(() => {
-        if (activeTab === 'SUMMARY') return []; // Don't show question list on summary tab
-        return diagnosticData.filter(item => item && item.category === activeTab);
-    }, [activeTab]);
+  const initialStrategyScores = { 'Vision and Mission': 0, 'Data Principles': 0, /* ...other scores */ };
+  const initialImplementationScores = { /* ... */ };
+  const initialServiceValueDeliveryScores = { /* ... */ };
 
-    const handleChartMouseEnter = (data: any) => {
-        if (data && data.payload && data.payload.dimension) {
-            setHoveredDimension(data.payload.dimension);
+  const [strategyScores, setStrategyScores] = useState(initialStrategyScores);
+  const [implementationScores, setImplementationScores] = useState(initialImplementationScores);
+  const [serviceValueDeliveryScores, setServiceValueDeliveryScores] = useState(initialServiceValueDeliveryScores);
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // All the logic for import/export stays here
+  const handleExportCSV = () => {
+    const allScores = { ...strategyScores, ...implementationScores, ...serviceValueDeliveryScores };
+    let csvString = 'Dimension,Score\n';
+    for (const [key, value] of Object.entries(allScores)) {
+      const formattedKey = `"${key.replace(/"/g, '""')}"`;
+      csvString += `${formattedKey},${value}\n`;
+    }
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'maturity_assessment.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      const lines = text.split('\n').slice(1);
+      const newStrategyScores = { ...initialStrategyScores };
+      const newImplementationScores = { ...initialImplementationScores };
+      const newServiceValueDeliveryScores = { ...initialServiceValueDeliveryScores };
+      lines.forEach(line => {
+        if (line.trim() === '') return;
+        const match = line.match(/"([^"]+)",(\d+)/);
+        if (match) {
+          const dimension = match[1];
+          const score = parseInt(match[2], 10);
+          if (dimension in newStrategyScores) newStrategyScores[dimension] = score;
+          else if (dimension in newImplementationScores) newImplementationScores[dimension] = score;
+          else if (dimension in newServiceValueDeliveryScores) newServiceValueDeliveryScores[dimension] = score;
         }
+      });
+      setStrategyScores(newStrategyScores);
+      setImplementationScores(newImplementationScores);
+      setServiceValueDeliveryScores(newServiceValueDeliveryScores);
     };
-    const handleChartMouseLeave = () => {
-        setHoveredDimension(null);
+    reader.readAsText(file);
+  };
+
+  const handleImportButtonClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  // 4. Add the useEffect hook to communicate with App.tsx
+  useEffect(() => {
+    // When this page loads, give our functions to App.tsx
+    setPageActions({
+      onImport: handleImportButtonClick,
+      onExport: handleExportCSV,
+    });
+
+    // When this page unloads, clean up by removing the functions
+    return () => {
+      setPageActions({});
     };
-    
-    // This handler can be simplified as we removed the auto-scroll
-    const handleSelectScore = (dimensionName: string, score: number) => {
-        updateScore(dimensionName, score);
-    };
+  }, [setPageActions]); // Dependency array
 
-    const tabClasses = (tabName: Tab) => 
-        `px-4 py-2 font-semibold rounded-t-lg transition-colors border-b-2 ${
-            activeTab === tabName 
-            ? 'bg-gray-800 text-white border-blue-500' 
-            : 'bg-gray-700 text-gray-400 hover:bg-gray-600 border-transparent'
-        }`;
+  // ... rest of the component logic like handleTabChange, getChartData, chartOptions ...
+  const handleScoreChange = (category: string, dimension: string, newScore: number) => { /* ... */ };
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => setSelectedTab(newValue);
+  const getChartData = () => { /* ... */ return { labels: [], datasets: [] }; };
+  const chartOptions = { /* ... */ };
 
-    return (
-        <div className={darkMode ? 'bg-gray-900' : 'bg-gray-50'}>
-            <div className={`max-w-7xl mx-auto p-6 min-h-screen ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>
-                <Header
-                    title="Maturity Diagnostic"
-                    subtitle="Select a tab to view a category, then score each dimension."
-                    darkMode={darkMode}
-                    setDarkMode={setDarkMode}
-                    showDevTag={true}
-                />
-                
-                {/* NEW: Tab Navigation */}
-                <div className="flex border-b border-gray-700">
-                    <button className={tabClasses('STRATEGY')} onClick={() => setActiveTab('STRATEGY')}>Strategy</button>
-                    <button className={tabClasses('IMPLEMENTATION')} onClick={() => setActiveTab('IMPLEMENTATION')}>Implementation</button>
-                    <button className={tabClasses('SERVICE & VALUE DELIVERY')} onClick={() => setActiveTab('SERVICE & VALUE DELIVERY')}>Service & Value Delivery</button>
-                    <button className={tabClasses('SUMMARY')} onClick={() => setActiveTab('SUMMARY')}>Summary</button>
-                </div>
+  return (
+    <div style={{ padding: '20px' }}>
+      <h1>Maturity Diagnostic</h1>
+      <p>Select a tab to view a category, then score each dimension.</p>
+      
+      {/* 5. The buttons are GONE from here */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleImportCSV}
+        style={{ display: 'none' }}
+        accept=".csv"
+      />
 
-                {/* NEW: Tab Content Panel */}
-                <div className="p-6 bg-gray-800 rounded-b-lg border border-t-0 border-gray-700">
-                    <div className="flex flex-col lg:flex-row gap-8">
-                        <div className="lg:w-2/3">
-                            <BarChartComponent 
-                                data={chartData} 
-                                onMouseEnter={handleChartMouseEnter} 
-                                onMouseLeave={handleChartMouseLeave} 
-                                height={activeTab === 'SUMMARY' ? 550 : 300}
-                            />
-                        </div>
-                        <div className="lg:w-1/3">
-                            <h3 className="text-lg font-semibold mb-2">Dimension Details</h3>
-                            <div className="p-4 bg-gray-900 rounded-md min-h-[300px]">
-                                {hoveredDimension ? (
-                                    <>
-                                        <h4 className="font-bold text-white">{hoveredDimension.name}</h4>
-                                        <p className="text-sm text-gray-400 mt-2">{hoveredDimension.description}</p>
-                                    </>
-                                ) : (
-                                    <div className="h-full flex items-center justify-center">
-                                        <p className="text-gray-500">Hover over a bar to see details</p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', marginTop: '20px' }}>
+        <Tabs value={selectedTab} onChange={handleTabChange}>
+          <Tab label="Strategy" />
+          <Tab label="Implementation" />
+          <Tab label="Service & Value Delivery" />
+          <Tab label="Summary" />
+        </Tabs>
+      </Box>
 
-                {/* The Question list is now below the tab panel, and only shows if not on summary tab */}
-                {activeTab !== 'SUMMARY' && (
-                    <DiagnosticQuestionList
-                        items={visibleQuestions}
-                        scores={scores}
-                        handleSelectScore={handleSelectScore}
-                        darkMode={darkMode}
-                    />
-                )}
-                
-                 <div className="flex justify-end mt-8">
-                    <Link to="/prioritisation" className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${darkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}>
-                        Proceed to Prioritisation Tool →
-                    </Link>
-                </div>
-            </div>
-        </div>
-    );
+      {/* ... rest of your JSX ... */}
+      <div style={{ marginTop: '20px' }}>
+        <Bar data={getChartData()} options={chartOptions} />
+      </div>
+
+    </div>
+  );
 };
 
 export default DiagnosticPage6;
