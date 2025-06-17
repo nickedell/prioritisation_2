@@ -9,7 +9,7 @@ export interface DiagnosticItem {
 
 export const diagnosticData: DiagnosticItem[] = [
   {
-    "category": "STRATEGIES",
+    "category": "STRATEGY",
     "name": "Vision and Mission",
     "description": "A clear and concise statement that defines the overall purpose and goals of the organisation's data activities. It should articulate the desired future state and how data will be used to achieve strategic objectives.",
     "levels": [
@@ -21,7 +21,7 @@ export const diagnosticData: DiagnosticItem[] = [
     ]
   },
   {
-    "category": "STRATEGIES",
+    "category": "STRATEGY",
     "name": "Data Principles",
     "description": "A set of guiding principles that define how data should be managed, used and shared within the organisation. These principles should be aligned with the organisation's values and ethical considerations.",
     "levels": [
@@ -33,19 +33,19 @@ export const diagnosticData: DiagnosticItem[] = [
     ]
   },
   {
-    "category": "STRATEGIES",
-    "name": "Data STRATEGIES Alignment",
-    "description": "The extent to which the data STRATEGIES is aligned with the overall business STRATEGIES. This includes ensuring that data initiatives support key business goals and that data is used to drive decision-making across the organisation.",
+    "category": "STRATEGY",
+    "name": "Data STRATEGY Alignment",
+    "description": "The extent to which the data STRATEGY is aligned with the overall business STRATEGY. This includes ensuring that data initiatives support key business goals and that data is used to drive decision-making across the organisation.",
     "levels": [
-      "Data STRATEGIES is not aligned with overall business STRATEGIES.",
-      "Data STRATEGIES is documented but poorly aligned with business STRATEGIES.",
-      "Data STRATEGIES is well-defined and aligned with business STRATEGIES.",
-      "Data STRATEGIES is a key driver of business STRATEGIES.",
-      "Data STRATEGIES is agile and responsive to changing business needs."
+      "Data STRATEGY is not aligned with overall business STRATEGY.",
+      "Data STRATEGY is documented but poorly aligned with business STRATEGY.",
+      "Data STRATEGY is well-defined and aligned with business STRATEGY.",
+      "Data STRATEGY is a key driver of business STRATEGY.",
+      "Data STRATEGY is agile and responsive to changing business needs."
     ]
   },
   {
-    "category": "STRATEGIES",
+    "category": "STRATEGY",
     "name": "Governance: Governance Framework",
     "description": "A comprehensive framework that defines roles, responsibilities and processes for data governance. This includes policies, standards and procedures for data management, data quality, data security and data ethics.",
     "levels": [
@@ -57,7 +57,7 @@ export const diagnosticData: DiagnosticItem[] = [
     ]
   },
   {
-    "category": "STRATEGIES",
+    "category": "STRATEGY",
     "name": "Governance: Risk Management",
     "description": "A systematic process for identifying, assessing and mitigating data-related risks. This includes risks related to data security, data privacy, data quality and data compliance.",
     "levels": [
@@ -69,7 +69,7 @@ export const diagnosticData: DiagnosticItem[] = [
     ]
   },
   {
-    "category": "STRATEGIES",
+    "category": "STRATEGY",
     "name": "Governance: Compliance",
     "description": "Ensuring that the organisation's data activities comply with relevant regulations, laws and ethical standards.",
     "levels": [
@@ -81,7 +81,7 @@ export const diagnosticData: DiagnosticItem[] = [
     ]
   },
   {
-    "category": "STRATEGIES",
+    "category": "STRATEGY",
     "name": "Governance: Data Ethics",
     "description": "A set of ethical principles that guide the organisation's data activities. This includes considerations around fairness, transparency, accountability and respect for individual rights.",
     "levels": [
@@ -93,7 +93,7 @@ export const diagnosticData: DiagnosticItem[] = [
     ]
   },
   {
-    "category": "STRATEGIES",
+    "category": "STRATEGY",
     "name": "Value Definition & Attribution",
     "description": "A clear definition of how the organisation creates value from data and a model for attributing value to specific data initiatives. This helps to demonstrate the return on investment in data and to prioritise data projects.",
     "levels": [
@@ -185,7 +185,7 @@ export const diagnosticData: DiagnosticItem[] = [
       "Basic backlog of data product ideas and requests exists, but it is poorly maintained.",
       "Defined product pipeline is in place with a documented prioritisation process.",
       "The product pipeline is actively managed, data-driven, responsive and regularly reviewed.",
-      "Product pipeline management is a strategic capability, deeply integrated with business STRATEGIES and planning."
+      "Product pipeline management is a strategic capability, deeply integrated with business STRATEGY and planning."
     ]
   },
   {
@@ -275,7 +275,7 @@ export const diagnosticData: DiagnosticItem[] = [
   {
     "category": "SERVICE & VALUE DELIVERY",
     "name": "Data Culture: Capability Uplift",
-    "description": "Developing the data skills and capabilities of employees through training, mentoring and knowledge sharing. This helps to ensure that the organisation has the talent it needs to execute its data STRATEGIES.",
+    "description": "Developing the data skills and capabilities of employees through training, mentoring and knowledge sharing. This helps to ensure that the organisation has the talent it needs to execute its data STRATEGY.",
     "levels": [
       "No formal capability uplift program.",
       "Basic capability uplift initiatives are in place.",
