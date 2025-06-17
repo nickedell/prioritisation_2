@@ -1,75 +1,41 @@
-import React, { useContext, useMemo, useState, useRef, useEffect } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { diagnosticData, DiagnosticItem } from '../constants/diagnostic.ts';
 import { MaturityContext } from '../context/MaturityContext.tsx';
 import BarChartComponent from '../components/BarChart.tsx';
 import Header from '../components/Header.tsx';
+import DiagnosticQuestionList from '../components/DiagnosticQuestionList.tsx';
+
+// NEW: Define the possible tabs
+type Tab = 'STRATEGY' | 'IMPLEMENTATION' | 'SERVICE & VALUE DELIVERY' | 'SUMMARY';
 
 const DiagnosticPage6: React.FC = () => {
     const maturityContext = useContext(MaturityContext);
     const [darkMode, setDarkMode] = useState(true);
-    const stickyHeaderRef = useRef<HTMLDivElement>(null);
-    const [visibleCategory, setVisibleCategory] = useState('STRATEGY');
+    // NEW: State to manage the active tab
+    const [activeTab, setActiveTab] = useState<Tab>('STRATEGY');
     const [hoveredDimension, setHoveredDimension] = useState<DiagnosticItem | null>(null);
 
     if (!maturityContext) { return <div>Loading...</div>; }
 
     const { scores, updateScore } = maturityContext;
 
+    // UPDATE: Chart data logic now filters based on the active tab
     const chartData = useMemo(() => {
-        const createChartData = (category: string) => {
-            return diagnosticData
-                .filter(item => item && item.category === category)
-                .map(item => ({
-                    dimension: item,
-                    score: scores[item.name] || 0,
-                }));
-        };
-        return {
-            strategy: createChartData('STRATEGY'),
-            implementation: createChartData('IMPLEMENTATION'),
-            service: createChartData('SERVICE & VALUE DELIVERY'),
-        };
-    }, [scores]);
-
-    const handleSelectScore = (dimensionName: string, score: number, currentIndex: number) => {
-        updateScore(dimensionName, score);
-        const nextIndex = currentIndex + 1;
-        if (nextIndex < diagnosticData.length) {
-            const nextDimensionId = `dimension-card-${nextIndex}`;
-            setTimeout(() => {
-                const nextElement = document.getElementById(nextDimensionId);
-                if (nextElement && stickyHeaderRef.current) {
-                    const headerHeight = stickyHeaderRef.current.offsetHeight;
-                    const elementPosition = nextElement.getBoundingClientRect().top;
-                    const offsetPosition = elementPosition + window.pageYOffset - headerHeight - 20;
-                    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-                }
-            }, 150);
-        }
-    };
-
-    useEffect(() => {
-        const categoryElements: HTMLElement[] = [];
-        diagnosticData.filter(Boolean).forEach(item => {
-            if (item && !categoryElements.some(el => el.id === item.category)) {
-                const el = document.getElementById(item.category);
-                if (el) categoryElements.push(el);
-            }
-        });
-        const handleScroll = () => {
-            const headerBottom = stickyHeaderRef.current?.getBoundingClientRect().bottom || 0;
-            let currentTopCategory = '';
-            for (const el of categoryElements) {
-                if (el.getBoundingClientRect().top <= headerBottom) {
-                    currentTopCategory = el.id;
-                }
-            }
-            setVisibleCategory(currentTopCategory || 'STRATEGY');
-        };
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+        const category = activeTab !== 'SUMMARY' ? activeTab : '';
+        return diagnosticData
+            .filter(item => item && (activeTab === 'SUMMARY' || item.category === category))
+            .map(item => ({
+                dimension: item,
+                score: scores[item.name] || 0,
+            }));
+    }, [scores, activeTab]);
+    
+    // NEW: Memoized list of questions to show based on the active tab
+    const visibleQuestions = useMemo(() => {
+        if (activeTab === 'SUMMARY') return []; // Don't show question list on summary tab
+        return diagnosticData.filter(item => item && item.category === activeTab);
+    }, [activeTab]);
 
     const handleChartMouseEnter = (data: any) => {
         if (data && data.payload && data.payload.dimension) {
@@ -79,75 +45,81 @@ const DiagnosticPage6: React.FC = () => {
     const handleChartMouseLeave = () => {
         setHoveredDimension(null);
     };
+    
+    // This handler can be simplified as we removed the auto-scroll
+    const handleSelectScore = (dimensionName: string, score: number) => {
+        updateScore(dimensionName, score);
+    };
 
-    const levelHeaders = [
-        'LEVEL 1 - AD HOC/REACTIVE', 'LEVEL 2 - MANAGED/DEFINED',
-        'LEVEL 3 - PROACTIVE/STANDARDISED', 'LEVEL 4 - PREDICTIVE/OPTIMISED',
-        'LEVEL 5 - ADAPTIVE/AGILE'
-    ];
+    const tabClasses = (tabName: Tab) => 
+        `px-4 py-2 font-semibold rounded-t-lg transition-colors border-b-2 ${
+            activeTab === tabName 
+            ? 'bg-gray-800 text-white border-blue-500' 
+            : 'bg-gray-700 text-gray-400 hover:bg-gray-600 border-transparent'
+        }`;
 
     return (
         <div className={darkMode ? 'bg-gray-900' : 'bg-gray-50'}>
             <div className={`max-w-7xl mx-auto p-6 min-h-screen ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>
-                <div ref={stickyHeaderRef} className={`sticky top-0 z-40 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'} pt-4 pb-4`}>
-                    <Header
-                        title="Maturity Diagnostic"
-                        subtitle="Select the cell that best fits your organisation's current state for each dimension."
-                        darkMode={darkMode}
-                        setDarkMode={setDarkMode}
-                        showDevTag={true}
-                    />
-                    <div className="mt-4">
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                            <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
-                                <h3 className="text-lg font-semibold mb-2">Strategy</h3>
-                                <BarChartComponent data={chartData.strategy} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={250} />
-                            </div>
-                            <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
-                                <h3 className="text-lg font-semibold mb-2">Implementation</h3>
-                                <BarChartComponent data={chartData.implementation} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={300} />
-                            </div>
-                            <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
-                                <h3 className="text-lg font-semibold mb-2">Service & Value Delivery</h3>
-                                <BarChartComponent data={chartData.service} onMouseEnter={handleChartMouseEnter} onMouseLeave={handleChartMouseLeave} height={250} />
-                            </div>
+                <Header
+                    title="Maturity Diagnostic"
+                    subtitle="Select a tab to view a category, then score each dimension."
+                    darkMode={darkMode}
+                    setDarkMode={setDarkMode}
+                    showDevTag={true}
+                />
+                
+                {/* NEW: Tab Navigation */}
+                <div className="flex border-b border-gray-700">
+                    <button className={tabClasses('STRATEGY')} onClick={() => setActiveTab('STRATEGY')}>Strategy</button>
+                    <button className={tabClasses('IMPLEMENTATION')} onClick={() => setActiveTab('IMPLEMENTATION')}>Implementation</button>
+                    <button className={tabClasses('SERVICE & VALUE DELIVERY')} onClick={() => setActiveTab('SERVICE & VALUE DELIVERY')}>Service & Value Delivery</button>
+                    <button className={tabClasses('SUMMARY')} onClick={() => setActiveTab('SUMMARY')}>Summary</button>
+                </div>
+
+                {/* NEW: Tab Content Panel */}
+                <div className="p-6 bg-gray-800 rounded-b-lg border border-t-0 border-gray-700">
+                    <div className="flex flex-col lg:flex-row gap-8">
+                        <div className="lg:w-2/3">
+                            <BarChartComponent 
+                                data={chartData} 
+                                onMouseEnter={handleChartMouseEnter} 
+                                onMouseLeave={handleChartMouseLeave} 
+                                height={activeTab === 'SUMMARY' ? 550 : 300}
+                            />
                         </div>
-                        <div className="mt-4 p-4 bg-gray-800 rounded-lg border border-gray-700 min-h-[100px]">
+                        <div className="lg:w-1/3">
                             <h3 className="text-lg font-semibold mb-2">Dimension Details</h3>
-                            {hoveredDimension ? (
-                                <>
-                                    <h4 className="font-bold text-white">{hoveredDimension.name}</h4>
-                                    <p className="text-sm text-gray-400 mt-2">{hoveredDimension.description}</p>
-                                </>
-                            ) : (
-                                <div className="h-full flex items-center justify-center">
-                                    <p className="text-gray-500">Hover over a bar in any chart to see details</p>
-                                </div>
-                            )}
+                            <div className="p-4 bg-gray-900 rounded-md min-h-[300px]">
+                                {hoveredDimension ? (
+                                    <>
+                                        <h4 className="font-bold text-white">{hoveredDimension.name}</h4>
+                                        <p className="text-sm text-gray-400 mt-2">{hoveredDimension.description}</p>
+                                    </>
+                                ) : (
+                                    <div className="h-full flex items-center justify-center">
+                                        <p className="text-gray-500">Hover over a bar to see details</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="space-y-12 mt-8">
-                    {diagnosticData.filter(Boolean).map((item, index) => (
-                        <div key={item.name} id={`dimension-card-${index}`} className="p-6 bg-gray-800 rounded-lg border border-gray-700">
-                            {/* This is the content you have confirmed is working well */}
-                        </div>
-                    ))}
-                </div>
+                {/* The Question list is now below the tab panel, and only shows if not on summary tab */}
+                {activeTab !== 'SUMMARY' && (
+                    <DiagnosticQuestionList
+                        items={visibleQuestions}
+                        scores={scores}
+                        handleSelectScore={handleSelectScore}
+                        darkMode={darkMode}
+                    />
+                )}
                 
                  <div className="flex justify-end mt-8">
                     <Link to="/prioritisation" className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${darkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}>
                         Proceed to Prioritisation Tool →
                     </Link>
-                </div>
-
-                {/* --- NEW DEBUGGING UI --- */}
-                <div className="mt-8 p-4 bg-yellow-400 text-black rounded">
-                    <h3 className="font-bold">Live Scores State:</h3>
-                    <pre className="text-xs whitespace-pre-wrap">
-                        {JSON.stringify(scores, null, 2)}
-                    </pre>
                 </div>
             </div>
         </div>
