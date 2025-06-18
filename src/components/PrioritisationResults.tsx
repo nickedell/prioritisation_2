@@ -11,7 +11,7 @@ import {
   Legend,
 } from 'chart.js';
 
-import VisionAndMission from '../components/dimensions/VisionAndMission';
+
 import DataPrinciples from '../components/dimensions/DataPrinciples';
 import DataStrategyAlignment from '../components/dimensions/DataStrategyAlignment';
 import ValueDefinition from '../components/dimensions/ValueDefinition';
