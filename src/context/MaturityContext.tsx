@@ -1,4 +1,7 @@
+// src/context/MaturityContext.tsx
+
 import React, { createContext, useState, ReactNode, useMemo } from 'react';
+import { diagnosticData } from '../constants/diagnostic'; // Import data from our new file
 
 interface MaturityContextType {
     scores: { [key: string]: number };
@@ -8,7 +11,15 @@ interface MaturityContextType {
 export const MaturityContext = createContext<MaturityContextType | undefined>(undefined);
 
 export const MaturityProvider = ({ children }: { children: ReactNode }) => {
-    const [scores, setScores] = useState<{ [key: string]: number }>({});
+    // UPDATE: Initialize scores to 0 for all dimensions from the data file.
+    const initialScores = useMemo(() => {
+        return diagnosticData.reduce((acc, item) => {
+            acc[item.name] = 0;
+            return acc;
+        }, {} as { [key: string]: number });
+    }, []);
+
+    const [scores, setScores] = useState<{ [key: string]: number }>(initialScores);
 
     const updateScore = (dimensionName: string, score: number) => {
         setScores(prevScores => ({
@@ -16,9 +27,7 @@ export const MaturityProvider = ({ children }: { children: ReactNode }) => {
             [dimensionName]: score,
         }));
     };
-
-    // UPDATE: Memoizing the context value is critical for performance and
-    // ensures that components only re-render when the scores actually change.
+    
     const value = useMemo(() => ({ scores, updateScore }), [scores]);
 
     return (

@@ -1,240 +1,257 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Tabs, Tab, Box, Typography } from '@mui/material';
-import { Bar } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
+import React, { useContext, useMemo, useState } from 'react';
 
-import VisionAndMission from '../components/dimensions/VisionAndMission';
-import DataPrinciples from '../components/dimensions/DataPrinciples';
-import DataStrategyAlignment from '../components/dimensions/DataStrategyAlignment';
-import ValueDefinition from '../components/dimensions/ValueDefinition';
-import GovernanceFramework from '../components/dimensions/GovernanceFramework';
-import RiskManagement from '../components/dimensions/RiskManagement';
-import Compliance from '../components/dimensions/Compliance';
-import DataEthics from '../components/dimensions/DataEthics';
+import { Link } from 'react-router-dom';
 
-// Define the Props interface
-interface DiagnosticPageProps {
-  setPageActions: (actions: { onImport?: () => void; onExport?: () => void; }) => void;
-}
+import { diagnosticData, DiagnosticItem } from '../constants/diagnostic.ts';
 
-const DiagnosticPage6: React.FC<DiagnosticPageProps> = ({ setPageActions }) => {
-  const [selectedTab, setSelectedTab] = useState(0);
+import { MaturityContext } from '../context/MaturityContext.tsx';
 
-  const initialStrategyScores = {
-    'Vision and Mission': 0,
-    'Data Principles': 0,
-    'Data Strategy Alignment': 0,
-    'Value Definition & Attribution': 0,
-  };
-  const initialImplementationScores = {
-    'Governance Framework': 0,
-    'Risk Management': 0,
-    'Compliance': 0,
-    'Data Ethics': 0,
-  };
-  const initialServiceValueDeliveryScores = {
-    'Data Quality': 0,
-    'Data Accessibility': 0,
-    'Data Literacy': 0,
-    'Technology and Tools': 0,
-  };
+import BarChartComponent from '../components/BarChart.tsx';
 
-  const [strategyScores, setStrategyScores] = useState(initialStrategyScores);
-  const [implementationScores, setImplementationScores] = useState(initialImplementationScores);
-  const [serviceValueDeliveryScores, setServiceValueDeliveryScores] = useState(initialServiceValueDeliveryScores);
+import Header from '../components/Header.tsx';
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
+import DiagnosticQuestionList from '../components/DiagnosticQuestionList.tsx';
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setSelectedTab(newValue);
-  };
 
-  const handleScoreChange = (category: string, dimension: string, newScore: number) => {
-    switch (category) {
-      case 'strategy':
-        setStrategyScores(prev => ({ ...prev, [dimension]: newScore }));
-        break;
-      case 'implementation':
-        setImplementationScores(prev => ({ ...prev, [dimension]: newScore }));
-        break;
-      case 'serviceValueDelivery':
-        setServiceValueDeliveryScores(prev => ({ ...prev, [dimension]: newScore }));
-        break;
-      default:
-        break;
-    }
-  };
 
-  const handleExportCSV = useCallback(() => {
-    const allScores = {
-      ...strategyScores,
-      ...implementationScores,
-      ...serviceValueDeliveryScores,
-    };
-    let csvString = 'Dimension,Score\n';
-    for (const [key, value] of Object.entries(allScores)) {
-      const formattedKey = `"${key.replace(/"/g, '""')}"`;
-      csvString += `${formattedKey},${value}\n`;
-    }
-    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'maturity_assessment.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, [strategyScores, implementationScores, serviceValueDeliveryScores]);
+// NEW: Define the possible tabs
 
-  const handleImportButtonClick = useCallback(() => {
-    fileInputRef.current?.click();
-  }, []);
-  
-  const handleImportCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      const lines = text.split('\n').slice(1);
-      const newStrategyScores = { ...initialStrategyScores };
-      const newImplementationScores = { ...initialImplementationScores };
-      const newServiceValueDeliveryScores = { ...initialServiceValueDeliveryScores };
-      lines.forEach(line => {
-        if (line.trim() === '') return;
-        const match = line.match(/"([^"]+)",(\d+)/);
-        if (match) {
-          const dimension = match[1];
-          const score = parseInt(match[2], 10);
-          if (dimension in newStrategyScores) newStrategyScores[dimension] = score;
-          else if (dimension in newImplementationScores) newImplementationScores[dimension] = score;
-          else if (dimension in newServiceValueDeliveryScores) newServiceValueDeliveryScores[dimension] = score;
-        }
-      });
-      setStrategyScores(newStrategyScores);
-      setImplementationScores(newImplementationScores);
-      setServiceValueDeliveryScores(newServiceValueDeliveryScores);
-    };
-    reader.readAsText(file);
-  };
-  
-  useEffect(() => {
-    setPageActions({
-      onImport: handleImportButtonClick,
-      onExport: handleExportCSV,
-    });
-    return () => {
-      setPageActions({});
-    };
-  }, [setPageActions, handleImportButtonClick, handleExportCSV]);
+type Tab = 'STRATEGY' | 'IMPLEMENTATION' | 'SERVICE & VALUE DELIVERY' | 'SUMMARY';
 
-  const getChartData = () => {
-    let labels: string[] = [];
-    let data: number[] = [];
-    let scores: { [key: string]: number } = {};
-    switch (selectedTab) {
-      case 0: scores = strategyScores; break;
-      case 1: scores = implementationScores; break;
-      case 2: scores = serviceValueDeliveryScores; break;
-      default: return { labels: [], datasets: [] };
-    }
-    labels = Object.keys(scores);
-    data = Object.values(scores);
-    return {
-      labels,
-      datasets: [{
-        label: 'Score',
-        data,
-        backgroundColor: 'rgba(128, 90, 213, 0.5)',
-        borderColor: 'rgba(128, 90, 213, 1)',
-        borderWidth: 1,
-      }],
-    };
-  };
 
-  const chartOptions = {
-    indexAxis: 'y' as const,
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      x: {
-        beginAtZero: true,
-        max: 5,
-        ticks: { stepSize: 1, color: '#fff' },
-        grid: { color: 'rgba(255, 255, 255, 0.1)' },
-      },
-      y: {
-        ticks: { color: '#fff' },
-        grid: { display: false },
-      },
-    },
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        callbacks: {
-          label: (context: any) => `Score: ${context.raw}`,
-        },
-      },
-    },
-  };
 
-  return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>Maturity Diagnostic</Typography>
-      <Typography variant="body1" sx={{ mb: 2 }}>Select a tab to view a category, then score each dimension.</Typography>
-      
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleImportCSV}
-        style={{ display: 'none' }}
-        accept=".csv"
-      />
+const DiagnosticPage6: React.FC = () => {
 
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={selectedTab} onChange={handleTabChange} aria-label="maturity diagnostic tabs">
-          <Tab label="Strategy" />
-          <Tab label="Implementation" />
-          <Tab label="Service & Value Delivery" />
-          <Tab label="Summary" />
-        </Tabs>
-      </Box>
+    const maturityContext = useContext(MaturityContext);
 
-      <Box sx={{ mt: 3, height: '300px' }}>
-        {selectedTab < 3 && <Bar options={chartOptions} data={getChartData()} />}
-        {selectedTab === 3 && <Typography>Summary coming soon.</Typography>}
-      </Box>
+    const [darkMode, setDarkMode] = useState(true);
 
-      <Box sx={{ mt: 3 }}>
-        {selectedTab === 0 && (
-          <>
-            <VisionAndMission scores={strategyScores} onScoreChange={(dim, score) => handleScoreChange('strategy', dim, score)} />
-            <DataPrinciples scores={strategyScores} onScoreChange={(dim, score) => handleScoreChange('strategy', dim, score)} />
-            <DataStrategyAlignment scores={strategyScores} onScoreChange={(dim, score) => handleScoreChange('strategy', dim, score)} />
-            <ValueDefinition scores={strategyScores} onScoreChange={(dim, score) => handleScoreChange('strategy', dim, score)} />
-          </>
-        )}
-        {selectedTab === 1 && (
-          <>
-            <GovernanceFramework scores={implementationScores} onScoreChange={(dim, score) => handleScoreChange('implementation', dim, score)} />
-            <RiskManagement scores={implementationScores} onScoreChange={(dim, score) => handleScoreChange('implementation', dim, score)} />
-            <Compliance scores={implementationScores} onScoreChange={(dim, score) => handleScoreChange('implementation', dim, score)} />
-            <DataEthics scores={implementationScores} onScoreChange={(dim, score) => handleScoreChange('implementation', dim, score)} />
-          </>
-        )}
-        {/* Add components for Service & Value Delivery when they are ready */}
-      </Box>
-    </Box>
-  );
+    // NEW: State to manage the active tab
+
+    const [activeTab, setActiveTab] = useState<Tab>('STRATEGY');
+
+    const [hoveredDimension, setHoveredDimension] = useState<DiagnosticItem | null>(null);
+
+
+
+    if (!maturityContext) { return <div>Loading...</div>; }
+
+
+
+    const { scores, updateScore } = maturityContext;
+
+
+
+    // UPDATE: Chart data logic now filters based on the active tab
+
+    const chartData = useMemo(() => {
+
+        const category = activeTab !== 'SUMMARY' ? activeTab : '';
+
+        return diagnosticData
+
+            .filter(item => item && (activeTab === 'SUMMARY' || item.category === category))
+
+            .map(item => ({
+
+                dimension: item,
+
+                score: scores[item.name] || 0,
+
+            }));
+
+    }, [scores, activeTab]);
+
+    
+
+    // NEW: Memoized list of questions to show based on the active tab
+
+    const visibleQuestions = useMemo(() => {
+
+        if (activeTab === 'SUMMARY') return []; // Don't show question list on summary tab
+
+        return diagnosticData.filter(item => item && item.category === activeTab);
+
+    }, [activeTab]);
+
+
+
+    const handleChartMouseEnter = (data: any) => {
+
+        if (data && data.payload && data.payload.dimension) {
+
+            setHoveredDimension(data.payload.dimension);
+
+        }
+
+    };
+
+    const handleChartMouseLeave = () => {
+
+        setHoveredDimension(null);
+
+    };
+
+    
+
+    // This handler can be simplified as we removed the auto-scroll
+
+    const handleSelectScore = (dimensionName: string, score: number) => {
+
+        updateScore(dimensionName, score);
+
+    };
+
+
+
+    const tabClasses = (tabName: Tab) => 
+
+        `px-4 py-2 font-semibold rounded-t-lg transition-colors border-b-2 ${
+
+            activeTab === tabName 
+
+            ? 'bg-gray-800 text-white border-blue-500' 
+
+            : 'bg-gray-700 text-gray-400 hover:bg-gray-600 border-transparent'
+
+        }`;
+
+
+
+    return (
+
+        <div className={darkMode ? 'bg-gray-900' : 'bg-gray-50'}>
+
+            <div className={`max-w-7xl mx-auto p-6 min-h-screen ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>
+
+                <Header
+
+                    title="Maturity Diagnostic"
+
+                    subtitle="Select a tab to view a category, then score each dimension."
+
+                    darkMode={darkMode}
+
+                    setDarkMode={setDarkMode}
+
+                    showDevTag={true}
+
+                />
+
+                
+
+                {/* NEW: Tab Navigation */}
+
+                <div className="flex border-b border-gray-700">
+
+                    <button className={tabClasses('STRATEGY')} onClick={() => setActiveTab('STRATEGY')}>Strategy</button>
+
+                    <button className={tabClasses('IMPLEMENTATION')} onClick={() => setActiveTab('IMPLEMENTATION')}>Implementation</button>
+
+                    <button className={tabClasses('SERVICE & VALUE DELIVERY')} onClick={() => setActiveTab('SERVICE & VALUE DELIVERY')}>Service & Value Delivery</button>
+
+                    <button className={tabClasses('SUMMARY')} onClick={() => setActiveTab('SUMMARY')}>Summary</button>
+
+                </div>
+
+
+
+                {/* NEW: Tab Content Panel */}
+
+                <div className="p-6 bg-gray-800 rounded-b-lg border border-t-0 border-gray-700">
+
+                    <div className="flex flex-col lg:flex-row gap-8">
+
+                        <div className="lg:w-2/3">
+
+                            <BarChartComponent 
+
+                                data={chartData} 
+
+                                onMouseEnter={handleChartMouseEnter} 
+
+                                onMouseLeave={handleChartMouseLeave} 
+
+                                height={activeTab === 'SUMMARY' ? 550 : 300}
+
+                            />
+
+                        </div>
+
+                        <div className="lg:w-1/3">
+
+                            <h3 className="text-lg font-semibold mb-2">Dimension Details</h3>
+
+                            <div className="p-4 bg-gray-900 rounded-md min-h-[300px]">
+
+                                {hoveredDimension ? (
+
+                                    <>
+
+                                        <h4 className="font-bold text-white">{hoveredDimension.name}</h4>
+
+                                        <p className="text-sm text-gray-400 mt-2">{hoveredDimension.description}</p>
+
+                                    </>
+
+                                ) : (
+
+                                    <div className="h-full flex items-center justify-center">
+
+                                        <p className="text-gray-500">Hover over a bar to see details</p>
+
+                                    </div>
+
+                                )}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                {/* The Question list is now below the tab panel, and only shows if not on summary tab */}
+
+                {activeTab !== 'SUMMARY' && (
+
+                    <DiagnosticQuestionList
+
+                        items={visibleQuestions}
+
+                        scores={scores}
+
+                        handleSelectScore={handleSelectScore}
+
+                        darkMode={darkMode}
+
+                    />
+
+                )}
+
+                
+
+                 <div className="flex justify-end mt-8">
+
+                    <Link to="/prioritisation" className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${darkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'}`}>
+
+                        Proceed to Prioritisation Tool →
+
+                    </Link>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    );
+
 };
+
+
 
 export default DiagnosticPage6;
