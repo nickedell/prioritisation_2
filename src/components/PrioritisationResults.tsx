@@ -1,74 +1,39 @@
-// src/pages/PrioritisationResults.tsx
+// src/components/PrioritisationResults.tsx
 
-import React, { useState, useEffect, useRef } from 'react'; // 1. Import useEffect
-import {
-  Box,
-  // ... other imports
-} from '@mui/material';
-// ... your other component imports
+// 1. Import useCallback
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+// ... other imports
 
-// 2. Define the interface for the props from App.tsx
-interface PrioritisationResultsProps {
-  setPageActions: (actions: { onImport?: () => void; onExport?: () => void; }) => void;
-}
-
-const PrioritisationResults: React.FC<PrioritisationResultsProps> = ({ setPageActions }) => { // 3. Accept setPageActions
-  
-  // All your existing state and refs remain
-  const [priorities, setPriorities] = useState([
-    // ... initial priorities data
-  ]);
+const PrioritisationResults: React.FC<PrioritisationResultsProps> = ({ setPageActions }) => {
+  // ... your existing state and refs
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // All your existing logic for import/export stays here
-  const exportToCsv = () => {
-    // ... your existing export logic
+  // 2. Wrap the handler functions in useCallback
+  const exportToCsv = useCallback(() => {
+    // ... your existing export logic ...
     console.log("Exporting prioritisation results...");
-  };
+  }, [/* add any state this function depends on, e.g. priorities */]);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // ... your existing file upload logic
-    console.log("Importing prioritisation results...");
-  };
-
-  const handleImportClick = () => {
+  const handleImportClick = useCallback(() => {
     fileInputRef.current?.click();
-  };
+  }, []);
 
-  // 4. Add the useEffect hook to communicate with App.tsx
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => { /* ... */ };
+
+  // 3. Update the useEffect to depend on the new, stable functions
   useEffect(() => {
-    // When this page loads, provide its functions to the Header
     setPageActions({
       onImport: handleImportClick,
       onExport: exportToCsv,
     });
-
-    // When the page unloads, remove the functions
     return () => {
       setPageActions({});
     };
-  }, [setPageActions]);
+  }, [setPageActions, handleImportClick, exportToCsv]);
 
-
-  // ... all your other functions and JSX rendering logic ...
-  // For example: const handleSliderChange = (...) => { ... };
-
+  // ... rest of your component
   return (
-    <Box sx={{ p: 3 }}>
-      {/* ... your page title etc ... */}
-
-      {/* 5. The buttons are GONE from here, but the hidden input remains */}
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleFileUpload}
-        style={{ display: 'none' }}
-        accept=".csv"
-      />
-      
-      {/* ... The rest of your JSX for the tables and results ... */}
-      
-    </Box>
+    // ... your JSX
   );
 };
 
