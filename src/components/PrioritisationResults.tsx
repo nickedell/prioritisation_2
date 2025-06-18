@@ -112,4 +112,106 @@ const PrioritisationResults: React.FC<PrioritisationResultsProps> = ({ setPageAc
       <Typography variant="body1" gutterBottom>
         Score each dimension on a 1-5 scale. The tool will automatically calculate priorities and apply special filters.
       </Typography>
-	  )
+
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileUpload}
+        style={{ display: 'none' }}
+        accept=".csv"
+      />
+
+      <Grid container spacing={3} sx={{ mb: 3 }}>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6">Business Impact (35%)</Typography>
+              <Typography variant="body2">1=Minimal, 5=Critical</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6">Feasibility (30%)</Typography>
+              <Typography variant="body2">1=Very Hard, 5=Very Easy</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6">Political Viability (20%)</Typography>
+              <Typography variant="body2">1=Strong Resistance, 5=Strong Support</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6">Foundation Building (15%)</Typography>
+              <Typography variant="body2">1=Standalone, 5=Critical Foundation</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={8}>
+          <Typography variant="h5" gutterBottom>Input Scores</Typography>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>TOM Dimension</TableCell>
+                <TableCell>Maturity Score</TableCell>
+                <TableCell>Business Impact</TableCell>
+                <TableCell>Feasibility</TableCell>
+                <TableCell>Political Viability</TableCell>
+                <TableCell>Foundation Building</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {priorities.map((p, index) => (
+                <TableRow key={p.name}>
+                  <TableCell>{p.name}</TableCell>
+                  <TableCell>{p.score}</TableCell>
+                  {['businessImpact', 'feasibility', 'politicalViability', 'foundationBuilding'].map(factor => (
+                    <TableCell key={factor}>
+                      <Tooltip title={(p as any)[factor]}>
+                        <Slider
+                          value={(p as any)[factor]}
+                          onChange={(_, value) => handleSliderChange(index, factor, value as number)}
+                          min={1}
+                          max={5}
+                          step={1}
+                          marks
+                        />
+                      </Tooltip>
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Typography variant="h5" gutterBottom>Prioritised Results</Typography>
+          <Table>
+            <TableBody>
+              {sortedPriorities.map((p, index) => (
+                <TableRow key={p.name}>
+                  <TableCell>
+                    <Typography variant="body1">#{index + 1} {p.name}</Typography>
+                    <Typography variant="caption">{p.category}</Typography>
+                  </TableCell>
+                  <TableCell>{p.finalPriority.toFixed(2)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Grid>
+      </Grid>
+    </Box>
+  );
+};
+
+export default PrioritisationResults;
