@@ -112,3 +112,4 @@ const PrioritisationResults: React.FC<PrioritisationResultsProps> = ({ setPageAc
       <Typography variant="body1" gutterBottom>
         Score each dimension on a 1-5 scale. The tool will automatically calculate priorities and apply special filters.
       </Typography>
+	  )
