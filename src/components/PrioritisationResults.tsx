@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Tabs, Tab, Box } from '@mui/material';
+import { Tabs, Tab, Box, Typography } from '@mui/material';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -20,6 +20,15 @@ import RiskManagement from '../components/dimensions/RiskManagement';
 import Compliance from '../components/dimensions/Compliance';
 import DataEthics from '../components/dimensions/DataEthics';
 
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
 interface DiagnosticPageProps {
   setPageActions: (actions: { onImport?: () => void; onExport?: () => void; }) => void;
 }
@@ -33,14 +42,12 @@ const DiagnosticPage6: React.FC<DiagnosticPageProps> = ({ setPageActions }) => {
     'Data Strategy Alignment': 0,
     'Value Definition & Attribution': 0,
   };
-
   const initialImplementationScores = {
     'Governance Framework': 0,
     'Risk Management': 0,
     'Compliance': 0,
     'Data Ethics': 0,
   };
-
   const initialServiceValueDeliveryScores = {
     'Data Quality': 0,
     'Data Accessibility': 0,
@@ -99,7 +106,7 @@ const DiagnosticPage6: React.FC<DiagnosticPageProps> = ({ setPageActions }) => {
   const handleImportButtonClick = useCallback(() => {
     fileInputRef.current?.click();
   }, []);
-  
+
   const handleImportCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -127,7 +134,7 @@ const DiagnosticPage6: React.FC<DiagnosticPageProps> = ({ setPageActions }) => {
     };
     reader.readAsText(file);
   };
-  
+
   useEffect(() => {
     setPageActions({
       onImport: handleImportButtonClick,
@@ -141,16 +148,57 @@ const DiagnosticPage6: React.FC<DiagnosticPageProps> = ({ setPageActions }) => {
   const getChartData = () => {
     let labels: string[] = [];
     let data: number[] = [];
-    // ... logic for getChartData
-    return { labels, datasets: [{ data }] };
+    let scores = {};
+    switch (selectedTab) {
+      case 0: scores = strategyScores; break;
+      case 1: scores = implementationScores; break;
+      case 2: scores = serviceValueDeliveryScores; break;
+      default: return { labels: [], datasets: [] };
+    }
+    labels = Object.keys(scores);
+    data = Object.values(scores);
+    return {
+      labels,
+      datasets: [{
+        label: 'Score',
+        data,
+        backgroundColor: 'rgba(128, 90, 213, 0.5)',
+        borderColor: 'rgba(128, 90, 213, 1)',
+        borderWidth: 1,
+      }],
+    };
   };
-  const chartOptions = { /* ... */ };
+
+  const chartOptions = {
+    indexAxis: 'y' as const,
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: {
+        beginAtZero: true,
+        max: 5,
+        ticks: { stepSize: 1, color: '#fff' },
+        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+      },
+      y: {
+        ticks: { color: '#fff' },
+        grid: { display: false },
+      },
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (context: any) => `Score: ${context.raw}`,
+        },
+      },
+    },
+  };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>Maturity Diagnostic</h1>
-      <p>Select a tab to view a category, then score each dimension.</p>
-      
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" gutterBottom>Maturity Diagnostic</Typography>
+      <Typography variant="body1" sx={{ mb: 2 }}>Select a tab to view a category, then score each dimension.</Typography>
       <input
         type="file"
         ref={fileInputRef}
@@ -158,8 +206,7 @@ const DiagnosticPage6: React.FC<DiagnosticPageProps> = ({ setPageActions }) => {
         style={{ display: 'none' }}
         accept=".csv"
       />
-
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', marginTop: '20px' }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={selectedTab} onChange={handleTabChange} aria-label="maturity diagnostic tabs">
           <Tab label="Strategy" />
           <Tab label="Implementation" />
@@ -167,10 +214,30 @@ const DiagnosticPage6: React.FC<DiagnosticPageProps> = ({ setPageActions }) => {
           <Tab label="Summary" />
         </Tabs>
       </Box>
-
-      {/* ... The rest of your JSX from your original file ... */}
-      
-    </div>
+      <Box sx={{ mt: 3, height: '300px' }}>
+        {selectedTab < 3 && <Bar options={chartOptions} data={getChartData()} />}
+        {selectedTab === 3 && <Typography>Summary coming soon.</Typography>}
+      </Box>
+      <Box sx={{ mt: 3 }}>
+        {selectedTab === 0 && (
+          <>
+            <VisionAndMission scores={strategyScores} onScoreChange={(dim, score) => handleScoreChange('strategy', dim, score)} />
+            <DataPrinciples scores={strategyScores} onScoreChange={(dim, score) => handleScoreChange('strategy', dim, score)} />
+            <DataStrategyAlignment scores={strategyScores} onScoreChange={(dim, score) => handleScoreChange('strategy', dim, score)} />
+            <ValueDefinition scores={strategyScores} onScoreChange={(dim, score) => handleScoreChange('strategy', dim, score)} />
+          </>
+        )}
+        {selectedTab === 1 && (
+          <>
+            <GovernanceFramework scores={implementationScores} onScoreChange={(dim, score) => handleScoreChange('implementation', dim, score)} />
+            <RiskManagement scores={implementationScores} onScoreChange={(dim, score) => handleScoreChange('implementation', dim, score)} />
+            <Compliance scores={implementationScores} onScoreChange={(dim, score) => handleScoreChange('implementation', dim, score)} />
+            <DataEthics scores={implementationScores} onScoreChange={(dim, score) => handleScoreChange('implementation', dim, score)} />
+          </>
+        )}
+        {/* Add components for Service & Value Delivery when they are ready */}
+      </Box>
+    </Box>
   );
 };
 
