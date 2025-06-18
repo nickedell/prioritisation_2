@@ -153,7 +153,7 @@ const PrioritisationResults: React.FC<PrioritisationResultsProps> = ({ setPageAc
               <Typography variant="body2">1=Standalone, 5=Critical Foundation</Typography>
             </CardContent>
           </Card>
-        </grid>
+        </Grid>
       </Grid>
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
