@@ -64,4 +64,90 @@ export const diagnosticData: DiagnosticItem[] = [
     name: 'Data Product Development Lifecycle', 
     category: 'IMPLEMENTATION', 
     description: 'A defined process for developing and deploying data products. This typically includes stages such as ideation, design, development, testing, deployment and monitoring.', 
-    levels: ['Level 1 Placeholder', 'Level 2
+    levels: ['Level 1 Placeholder', 'Level 2 Placeholder', 'Level 3 Placeholder', 'Level 4 Placeholder', 'Level 5 Placeholder'] 
+  },
+  { 
+    name: 'Continuous Discovery', 
+    category: 'IMPLEMENTATION', 
+    description: 'An ongoing process of understanding user needs and identifying opportunities for new data products or improvements to existing ones. This involves gathering feedback, analysing user behaviour and conducting market research.', 
+    levels: ['Level 1 Placeholder', 'Level 2 Placeholder', 'Level 3 Placeholder', 'Level 4 Placeholder', 'Level 5 Placeholder'] 
+  },
+  { 
+    name: 'Data Quality Management', 
+    category: 'IMPLEMENTATION', 
+    description: 'Processes and procedures for ensuring the accuracy, completeness, consistency and timeliness of data. This includes data profiling, data cleansing, data validation and data quality monitoring.', 
+    levels: ['Level 1 Placeholder', 'Level 2 Placeholder', 'Level 3 Placeholder', 'Level 4 Placeholder', 'Level 5 Placeholder'] 
+  },
+  { 
+    name: 'Metadata Management', 
+    category: 'IMPLEMENTATION', 
+    description: 'The process of managing metadata, which is data that describes other data. This includes defining metadata standards, capturing metadata and making metadata accessible to users.', 
+    levels: ['Level 1 Placeholder', 'Level 2 Placeholder', 'Level 3 Placeholder', 'Level 4 Placeholder', 'Level 5 Placeholder'] 
+  },
+  { 
+    name: 'Data Access and Sharing', 
+    category: 'IMPLEMENTATION', 
+    description: 'Policies and procedures for controlling access to data and enabling secure data sharing within and outside the organisation. This includes authentication, authorisation and data encryption.', 
+    levels: ['Level 1 Placeholder', 'Level 2 Placeholder', 'Level 3 Placeholder', 'Level 4 Placeholder', 'Level 5 Placeholder'] 
+  },
+  { 
+    name: 'Product Pipeline Management', 
+    category: 'IMPLEMENTATION', 
+    description: 'Managing the pipeline of data products from ideation through to deployment and retirement. This includes prioritising initiatives, allocating resources and tracking progress.', 
+    levels: ['Level 1 Placeholder', 'Level 2 Placeholder', 'Level 3 Placeholder', 'Level 4 Placeholder', 'Level 5 Placeholder'] 
+  },
+  { 
+    name: 'Roles and Responsibilities', 
+    category: 'IMPLEMENTATION', 
+    description: 'Clearly defined roles and responsibilities for data management, data governance and data product development. This includes roles such as data stewards, data engineers, data scientists and data analysts.', 
+    levels: ['Level 1 Placeholder', 'Level 2 Placeholder', 'Level 3 Placeholder', 'Level 4 Placeholder', 'Level 5 Placeholder'] 
+  },
+  { 
+    name: 'Technology and Tools', 
+    category: 'IMPLEMENTATION', 
+    description: 'The technology infrastructure and tools used to support data management, data governance and data product development.', 
+    levels: ['Level 1 Placeholder', 'Level 2 Placeholder', 'Level 3 Placeholder', 'Level 4 Placeholder', 'Level 5 Placeholder'] 
+  },
+  { 
+    name: 'Support', 
+    category: 'SERVICE & VALUE DELIVERY', 
+    description: 'Providing support to users of data products and services. This includes answering questions, resolving issues and providing training.', 
+    levels: ['Level 1 Placeholder', 'Level 2 Placeholder', 'Level 3 Placeholder', 'Level 4 Placeholder', 'Level 5 Placeholder'] 
+  },
+  { 
+    name: 'Communication & Stakeholder Engagement', 
+    category: 'SERVICE & VALUE DELIVERY', 
+    description: 'Effectively communicating data initiatives and engaging with stakeholders across the organisation. This includes providing regular updates, soliciting feedback and building relationships.', 
+    levels: ['Level 1 Placeholder', 'Level 2 Placeholder', 'Level 3 Placeholder', 'Level 4 Placeholder', 'Level 5 Placeholder'] 
+  },
+  { 
+    name: 'Attitudes and beliefs', 
+    category: 'SERVICE & VALUE DELIVERY', 
+    description: 'The shared attitudes, beliefs and values of individuals and teams with respect to the value of data.', 
+    levels: ['Level 1 Placeholder', 'Level 2 Placeholder', 'Level 3 Placeholder', 'Level 4 Placeholder', 'Level 5 Placeholder'] 
+  },
+  { 
+    name: 'Data Behaviours', 
+    category: 'SERVICE & VALUE DELIVERY', 
+    description: 'The behaviours and practices of individuals and teams with respect to data. This includes behaviours such as data sharing, data quality awareness and data-driven decision-making.', 
+    levels: ['Level 1 Placeholder', 'Level 2 Placeholder', 'Level 3 Placeholder', 'Level 4 Placeholder', 'Level 5 Placeholder'] 
+  },
+  { 
+    name: 'Data Literacy', 
+    category: 'SERVICE & VALUE DELIVERY', 
+    description: 'The level of data literacy within the organisation and the overall culture around data. This includes promoting data-driven decision-making, encouraging data sharing and fostering a culture of data curiosity.', 
+    levels: ['Level 1 Placeholder', 'Level 2 Placeholder', 'Level 3 Placeholder', 'Level 4 Placeholder', 'Level 5 Placeholder'] 
+  },
+  { 
+    name: 'Capability Uplift', 
+    category: 'SERVICE & VALUE DELIVERY', 
+    description: 'Developing the data skills and capabilities of employees through training, mentoring and knowledge sharing. This helps to ensure that the organisation has the talent it needs to execute its data strategy.', 
+    levels: ['Level 1 Placeholder', 'Level 2 Placeholder', 'Level 3 Placeholder', 'Level 4 Placeholder', 'Level 5 Placeholder'] 
+  },
+  { 
+    name: 'Value Realisation', 
+    category: 'SERVICE & VALUE DELIVERY', 
+    description: 'The process of capturing and measuring the value created from data initiatives. This includes tracking metrics such as cost savings, revenue growth and improved decision-making.', 
+    levels: ['Level 1 Placeholder', 'Level 2 Placeholder', 'Level 3 Placeholder', 'Level 4 Placeholder', 'Level 5 Placeholder'] 
+  }
+];
