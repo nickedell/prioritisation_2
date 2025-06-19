@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { diagnosticData, DiagnosticItem } from '../constants/diagnostic';
 import { MaturityContext } from '../context/MaturityContext';
 import BarChartComponent from '../components/BarChart';
-import Header from '../components/Header';
+import Header from '../components/PageHeader';
 import DiagnosticQuestionList from '../components/DiagnosticQuestionList';
 
 type Tab = 'STRATEGY' | 'IMPLEMENTATION' | 'SERVICE & VALUE DELIVERY' | 'SUMMARY';

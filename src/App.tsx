@@ -1,57 +1,23 @@
 // src/App.tsx
 
-import React, { useState, useMemo } from 'react'; // 1. Import useState
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
-import Header from './components/Header';
+import { MaturityProvider } from './context/MaturityContext';
 import DiagnosticPage6 from './pages/DiagnosticPage6';
-import PrioritisationResults from './components/PrioritisationResults.tsx';
+import PrioritisationResults from './components/PrioritisationResults'; // Assuming this is the correct path
 
 function App() {
-  const [mode, setMode] = useState<'light' | 'dark'>('dark');
-
-  // 2. Create the "memory box" to hold the active page's actions
-  const [pageActions, setPageActions] = useState<{ onImport?: () => void; onExport?: () => void; }>({});
-
-  const theme = useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode,
-          // ... your theme settings
-        },
-      }),
-    [mode],
-  );
-
-  const toggleTheme = () => {
-    setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
-  };
-
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    // The MaturityProvider wraps your entire application
+    <MaturityProvider>
       <Router>
-        {/* 3. Pass the actions down to the Header */}
-        <Header 
-          mode={mode} 
-          toggleTheme={toggleTheme} 
-          onImport={pageActions.onImport}
-          onExport={pageActions.onExport}
-        />
         <Routes>
-          {/* 4. Pass the ability to SET actions down to each page */}
-          <Route 
-            path="/" 
-            element={<DiagnosticPage6 setPageActions={setPageActions} />} 
-          />
-          <Route 
-            path="/prioritisation" 
-            element={<PrioritisationResults setPageActions={setPageActions} />} 
-          />
+          <Route path="/" element={<DiagnosticPage6 />} />
+          {/* We will fix the Prioritisation page in a later step */}
+          <Route path="/prioritisation" element={<div>Prioritisation Page Placeholder</div>} />
         </Routes>
       </Router>
-    </ThemeProvider>
+    </MaturityProvider>
   );
 }
 
