@@ -1,35 +1,36 @@
 // src/components/Header.tsx
 
 import React from 'react';
-import { AppBar, Toolbar, Typography, Button, IconButton, Box } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, IconButton } from '@mui/material';
 import { Brightness4, Brightness7 } from '@mui/icons-material';
 
-// Define the types for the props our Header will accept
 interface HeaderProps {
+  // NEW: Added a title prop
+  title: string; 
   mode: 'light' | 'dark';
   toggleTheme: () => void;
-  // Add optional onImport and onExport functions to the props
   onImport?: () => void;
   onExport?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ mode, toggleTheme, onImport, onExport }) => {
+const Header: React.FC<HeaderProps> = ({ title, mode, toggleTheme, onImport, onExport }) => {
   return (
-    <AppBar position="static" color="default" elevation={1}>
+    <AppBar position="static" color="primary">
       <Toolbar>
+        {/* UPDATE: The title is now dynamic */}
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          TOM Prioritisation Tool
+          {title}
         </Typography>
 
-        {/* Conditionally render the Import/Export buttons */}
+        {/* These buttons will now appear or disappear based on the page */}
         {onImport && (
           <Button color="inherit" onClick={onImport}>
-            Import CSV
+            Upload CSV
           </Button>
         )}
         {onExport && (
           <Button color="inherit" onClick={onExport} sx={{ ml: 1 }}>
-            Export CSV
+            Download CSV
           </Button>
         )}
 
