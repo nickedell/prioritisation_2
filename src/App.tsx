@@ -1,22 +1,21 @@
 // src/App.tsx
 
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { MaturityProvider } from './context/MaturityContext';
-import DiagnosticPage6 from './pages/DiagnosticPage6';
+import { Routes, Route } from 'react-router-dom';
+import { MaturityProvider } from './context/MaturityContext.tsx';
+import TabbedDiagnosticPage from './pages/TabbedDiagnosticPage.tsx';
 
-function App() {
+// A simple placeholder for the prioritisation page for now
+const PrioritisationPage = () => <div>Prioritisation Page</div>;
+
+const App = () => {
   return (
-    // The MaturityProvider wraps your pages, making the context available
     <MaturityProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<DiagnosticPage6 />} />
-          {/* Add other routes here later as needed */}
-        </Routes>
-      </Router>
+      <Routes>
+        <Route path="/" element={<TabbedDiagnosticPage />} /> 
+        <Route path="/prioritisation" element={<PrioritisationPage />} />
+      </Routes>
     </MaturityProvider>
   );
-}
+};
 
 export default App;
