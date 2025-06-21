@@ -1,12 +1,10 @@
 // src/components/Header.tsx
 
 import React from 'react';
-import { AppBar, Toolbar, Typography, Button, IconButton } from '@mui/material';
-import { Brightness4, Brightness7 } from '@mui/icons-material';
+import { Sun, Moon } from 'lucide-react';
 
-interface HeaderProps {
-  // NEW: Added a title prop
-  title: string; 
+export interface HeaderProps {
+  title: string;
   mode: 'light' | 'dark';
   toggleTheme: () => void;
   onImport?: () => void;
@@ -15,30 +13,43 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ title, mode, toggleTheme, onImport, onExport }) => {
   return (
-    <AppBar position="static" color="primary">
-      <Toolbar>
-        {/* UPDATE: The title is now dynamic */}
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+    <header className="bg-gray-900 text-white">
+      {/* UPDATED: Changed padding from p-4 to px-6 py-4 to match page content */}
+      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        {/* Title */}
+        <h1 className="text-xl font-bold">
           {title}
-        </Typography>
+        </h1>
 
-        {/* These buttons will now appear or disappear based on the page */}
-        {onImport && (
-          <Button color="inherit" onClick={onImport}>
-            Upload CSV
-          </Button>
-        )}
-        {onExport && (
-          <Button color="inherit" onClick={onExport} sx={{ ml: 1 }}>
-            Download CSV
-          </Button>
-        )}
+        {/* Buttons Container */}
+        <div className="flex items-center gap-4">
+          {onImport && (
+            <button 
+              onClick={onImport}
+              className="px-3 py-1.5 text-sm font-medium bg-gray-700 hover:bg-gray-600 rounded-md transition-colors"
+            >
+              Upload CSV
+            </button>
+          )}
+          {onExport && (
+            <button 
+              onClick={onExport}
+              className="px-3 py-1.5 text-sm font-medium bg-gray-700 hover:bg-gray-600 rounded-md transition-colors"
+            >
+              Download CSV
+            </button>
+          )}
 
-        <IconButton sx={{ ml: 1 }} onClick={toggleTheme} color="inherit">
-          {mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
-        </IconButton>
-      </Toolbar>
-    </AppBar>
+          <button 
+            onClick={toggleTheme}
+            className="p-1.5 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors"
+            aria-label="Toggle theme"
+          >
+            {mode === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
+        </div>
+      </div>
+    </header>
   );
 };
 
