@@ -1,12 +1,13 @@
 // src/pages/TabbedDiagnosticPage.tsx
 
-import React, { useContext, useMemo, useState, useCallback } from 'react';
+// CORRECTED: Added useEffect to the import list from React
+import React, { useContext, useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { diagnosticData, DiagnosticItem } from '../constants/diagnostic';
 import { MaturityContext } from '../context/MaturityContext';
 import BarChartComponent from '../components/BarChart';
+import Header from '../components/Header';
 import DiagnosticQuestionList from '../components/DiagnosticQuestionList';
-import Header from '../components/Header'; // Using the page-specific header
 import { PageConfig } from '../App';
 
 interface DiagnosticPageProps {
@@ -19,9 +20,9 @@ const TabbedDiagnosticPage: React.FC<DiagnosticPageProps> = ({ setPageConfig }) 
 	const maturityContext = useContext(MaturityContext);
 	const [activeTab, setActiveTab] = useState<Tab>('STRATEGY');
 	const [hoveredDimension, setHoveredDimension] = useState<DiagnosticItem | null>(null);
-	const [darkMode, setDarkMode] = useState(true); // Added darkMode state back for local control
+	const [darkMode, setDarkMode] = useState(true); 
 
-	// --- useEffect Hook to Set Header Config ---
+	// This useEffect hook sets the header title. It now works because it's imported.
 	useEffect(() => {
 		setPageConfig({ title: 'Maturity Diagnostic' });
 		return () => setPageConfig({ title: '' });
@@ -37,7 +38,7 @@ const TabbedDiagnosticPage: React.FC<DiagnosticPageProps> = ({ setPageConfig }) 
 		return diagnosticData
 			.filter(item => item && (activeTab === 'SUMMARY' || item.category === category))
 			.map(item => ({
-				dimension: item, // Pass the full item to the chart
+				dimension: item,
 				name: item.name,
 				score: scores[item.name] || 0,
 			}));
@@ -48,16 +49,15 @@ const TabbedDiagnosticPage: React.FC<DiagnosticPageProps> = ({ setPageConfig }) 
 		return diagnosticData.filter(item => item && item.category === activeTab);
 	}, [activeTab]);
 
-	// Handlers for chart hover to show description
-	const handleChartMouseEnter = useCallback((data: any) => {
+	const handleChartMouseEnter = (data: any) => {
 		if (data && data.activePayload && data.activePayload[0] && data.activePayload[0].payload) {
 			setHoveredDimension(data.activePayload[0].payload.dimension);
 		}
-	}, []);
+	};
 
-	const handleChartMouseLeave = useCallback(() => {
+	const handleChartMouseLeave = () => {
 		setHoveredDimension(null);
-	}, []);
+	};
 
 	const handleSelectScore = (dimensionName: string, score: number) => { 
 		updateScore(dimensionName, score); 
@@ -73,7 +73,6 @@ const TabbedDiagnosticPage: React.FC<DiagnosticPageProps> = ({ setPageConfig }) 
 	return (
 		<div className={darkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-50 text-gray-900'}>
 			<div className="max-w-7xl mx-auto p-6 min-h-screen">
-				{/* This uses the simpler, local Page Header */}
 				<Header
 					title="Maturity Diagnostic"
 					subtitle="Select a tab to view a category, then score each dimension."
@@ -90,10 +89,8 @@ const TabbedDiagnosticPage: React.FC<DiagnosticPageProps> = ({ setPageConfig }) 
 						<button className={tabClasses('SUMMARY')} onClick={() => setActiveTab('SUMMARY')}>Summary</button>
 					</div>
 
-					{/* --- CORRECTED TWO-COLUMN LAYOUT --- */}
 					<div className="p-6 bg-gray-800 rounded-b-lg border border-t-0 border-gray-700">
 						<div className="flex flex-col lg:flex-row gap-8">
-							{/* Left Column: Chart (2/3 width on large screens) */}
 							<div className="lg:w-2/3">
 								<BarChartComponent 
 									data={chartData}
@@ -101,41 +98,4 @@ const TabbedDiagnosticPage: React.FC<DiagnosticPageProps> = ({ setPageConfig }) 
 									onMouseLeave={handleChartMouseLeave}
 								/>
 							</div>
-							{/* Right Column: Dimension Details (1/3 width on large screens) */}
-							<div className="lg:w-1/3">
-								<h3 className="text-lg font-semibold mb-2">Dimension Details</h3>
-								<div className="p-4 bg-gray-900 rounded-md min-h-[300px]">
-									{hoveredDimension ? (
-										<>
-											<h4 className="font-bold text-white">{hoveredDimension.name}</h4>
-											<p className="text-sm text-gray-400 mt-2">{hoveredDimension.description}</p>
-										</>
-									) : (
-										<div className="h-full flex items-center justify-center">
-											<p className="text-gray-500">Hover over a bar to see details</p>
-										</div>
-									)}
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<DiagnosticQuestionList
-					items={visibleQuestions}
-					scores={scores}
-					updateScore={handleSelectScore}
-					darkMode={darkMode}
-				/>
-				
-				<div className="flex justify-end mt-8">
-					<Link to="/prioritisation" className="px-3 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600">
-						Proceed to Prioritisation Tool →
-					</Link>
-				</div>
-			</div>
-		</div>
-	);
-};
-
-export default TabbedDiagnosticPage;
+							<div className="lg:
