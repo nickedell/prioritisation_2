@@ -97,4 +97,47 @@ const TabbedDiagnosticPage: React.FC<DiagnosticPageProps> = ({ setPageConfig }) 
 					<div className="p-6 bg-gray-800 rounded-b-lg border border-t-0 border-gray-700">
 						<div className="flex flex-col lg:flex-row gap-8">
 							<div className="lg:w-2/3">
-								<Bar
+								<BarChartComponent 
+									data={chartData}
+									onMouseEnter={handleChartMouseEnter}
+									onMouseLeave={handleChartMouseLeave}
+								/>
+							</div>
+							{/* THIS IS THE CORRECTED SECTION */}
+							<div className="lg:w-1/3">
+								<h3 className="text-lg font-semibold mb-2">Dimension Details</h3>
+								<div className="p-4 bg-gray-900 rounded-md min-h-[300px]">
+									{hoveredDimension ? (
+										<>
+											<h4 className="font-bold text-white">{hoveredDimension.name}</h4>
+											<p className="text-sm text-gray-400 mt-2">{hoveredDimension.description}</p>
+										</>
+									) : (
+										<div className="h-full flex items-center justify-center">
+											<p className="text-gray-500">Hover over a bar to see details</p>
+										</div>
+									)}
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<DiagnosticQuestionList
+					items={visibleQuestions}
+					scores={scores}
+					updateScore={handleSelectScore}
+					darkMode={darkMode}
+				/>
+				
+				<div className="flex justify-end mt-8">
+					<Link to="/prioritisation" className="px-3 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600">
+						Proceed to Prioritisation Tool →
+					</Link>
+				</div>
+			</div>
+		</div>
+	);
+};
+
+export default TabbedDiagnosticPage;
