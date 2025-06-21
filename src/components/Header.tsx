@@ -5,7 +5,8 @@ import { AppBar, Toolbar, Typography, Button, IconButton } from '@mui/material';
 import { Brightness4, Brightness7 } from '@mui/icons-material';
 
 interface HeaderProps {
-  title: string; // The title is now a prop
+  // NEW: Added a title prop
+  title: string; 
   mode: 'light' | 'dark';
   toggleTheme: () => void;
   onImport?: () => void;
@@ -16,11 +17,12 @@ const Header: React.FC<HeaderProps> = ({ title, mode, toggleTheme, onImport, onE
   return (
     <AppBar position="static" color="primary">
       <Toolbar>
-        {/* The Typography component now displays the title from props */}
+        {/* UPDATE: The title is now dynamic */}
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           {title}
         </Typography>
 
+        {/* These buttons will now appear or disappear based on the page */}
         {onImport && (
           <Button color="inherit" onClick={onImport}>
             Upload CSV
