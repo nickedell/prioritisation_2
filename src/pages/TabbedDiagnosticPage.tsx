@@ -1,7 +1,6 @@
 // src/pages/TabbedDiagnosticPage.tsx
 
-// CORRECTED: Added useEffect to the import list from React
-import React, { useContext, useMemo, useState, useEffect } from 'react';
+import React, { useContext, useMemo, useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { diagnosticData, DiagnosticItem } from '../constants/diagnostic';
 import { MaturityContext } from '../context/MaturityContext';
@@ -22,11 +21,17 @@ const TabbedDiagnosticPage: React.FC<DiagnosticPageProps> = ({ setPageConfig }) 
 	const [hoveredDimension, setHoveredDimension] = useState<DiagnosticItem | null>(null);
 	const [darkMode, setDarkMode] = useState(true); 
 
-	// This useEffect hook sets the header title. It now works because it's imported.
+	const handleExport = useCallback(() => { console.log("Exporting..."); }, []);
+	const handleImport = useCallback(() => { console.log("Importing..."); }, []);
+
 	useEffect(() => {
-		setPageConfig({ title: 'Maturity Diagnostic' });
+		setPageConfig({
+		  title: 'Maturity Diagnostic',
+		  onImport: handleImport,
+		  onExport: handleExport,
+		});
 		return () => setPageConfig({ title: '' });
-	}, [setPageConfig]);
+	}, [setPageConfig, handleImport, handleExport]);
 
 	if (!maturityContext) { 
 		return <div>Loading Context...</div>; 
@@ -49,15 +54,15 @@ const TabbedDiagnosticPage: React.FC<DiagnosticPageProps> = ({ setPageConfig }) 
 		return diagnosticData.filter(item => item && item.category === activeTab);
 	}, [activeTab]);
 
-	const handleChartMouseEnter = (data: any) => {
+	const handleChartMouseEnter = useCallback((data: any) => {
 		if (data && data.activePayload && data.activePayload[0] && data.activePayload[0].payload) {
 			setHoveredDimension(data.activePayload[0].payload.dimension);
 		}
-	};
+	}, []);
 
-	const handleChartMouseLeave = () => {
+	const handleChartMouseLeave = useCallback(() => {
 		setHoveredDimension(null);
-	};
+	}, []);
 
 	const handleSelectScore = (dimensionName: string, score: number) => { 
 		updateScore(dimensionName, score); 
@@ -92,10 +97,4 @@ const TabbedDiagnosticPage: React.FC<DiagnosticPageProps> = ({ setPageConfig }) 
 					<div className="p-6 bg-gray-800 rounded-b-lg border border-t-0 border-gray-700">
 						<div className="flex flex-col lg:flex-row gap-8">
 							<div className="lg:w-2/3">
-								<BarChartComponent 
-									data={chartData}
-									onMouseEnter={handleChartMouseEnter}
-									onMouseLeave={handleChartMouseLeave}
-								/>
-							</div>
-							<div className="lg:
+								<Bar
