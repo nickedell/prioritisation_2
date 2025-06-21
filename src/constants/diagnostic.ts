@@ -1,3 +1,5 @@
+// src/constants/diagnostic.ts
+
 export interface DiagnosticItem {
   name: string;
   description: string;
@@ -9,13 +11,13 @@ export const diagnosticData: DiagnosticItem[] = [
   { 
     name: 'Vision and Mission', 
     category: 'STRATEGY', 
-    description: 'A clear and concise statement that defines the overall purpose and goals of the organisation\'s data activities. It should articulate the desired future state and how data will be used to achieve strategic objectives.', 
+    description: "A clear and concise statement that defines the overall purpose and goals of the organisation's data activities. It should articulate the desired future state and how data will be used to achieve strategic objectives.",
     levels: ['Vision and mission for data are unclear or non-existent.', 'Vision and mission are define but not centrally documented, aligned across teams or actively used.', 'Vision and mission are clearly defined and communicated.', 'Vision and mission are used to guide decision-making.', 'Vision and mission are dynamic and adapt to changing business needs.'] 
   },
   { 
     name: 'Data Principles', 
     category: 'STRATEGY', 
-    description: 'A set of guiding principles that define how data should be managed, used and shared within the organisation. These principles should be aligned with the organisation\'s values and ethical considerations.', 
+    description: "A set of guiding principles that define how data should be managed, used and shared within the organisation. These principles should be aligned with the organisation's values and ethical considerations.",
     levels: ['Data principles are not defined.', 'Some informal data principles exist but are not documented or enforced.', 'Data principles are formally documented and communicated.', 'Data principles are integrated into data governance and decision-making processes.', 'Data principles are regularly reviewed and updated to reflect best practices and business changes.'] 
   },
   { 
@@ -45,13 +47,13 @@ export const diagnosticData: DiagnosticItem[] = [
   { 
     name: 'Compliance', 
     category: 'IMPLEMENTATION', 
-    description: 'Ensuring that the organisation\'s data activities comply with relevant regulations, laws and ethical standards.', 
+    description: "Ensuring that the organisation's data activities comply with relevant regulations, laws and ethical standards.", 
     levels: ['Level 1 Placeholder', 'Level 2 Placeholder', 'Level 3 Placeholder', 'Level 4 Placeholder', 'Level 5 Placeholder'] 
   },
   { 
     name: 'Data Ethics', 
     category: 'IMPLEMENTATION', 
-    description: 'A set of ethical principles that guide the organisation\'s data activities. This includes considerations around fairness, transparency, accountability and respect for individual rights.', 
+    description: "A set of ethical principles that guide the organisation's data activities. This includes considerations around fairness, transparency, accountability and respect for individual rights.", 
     levels: ['Level 1 Placeholder', 'Level 2 Placeholder', 'Level 3 Placeholder', 'Level 4 Placeholder', 'Level 5 Placeholder'] 
   },
   { 
