@@ -8,7 +8,7 @@ import PrioritisationPage from './pages/PrioritisationPage.tsx';
 import Header from './components/Header.tsx';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 
-// Interface for the header configuration
+// Interface for the header configuration that pages will send up
 export interface PageConfig {
   title: string;
   onImport?: () => void;
@@ -20,12 +20,22 @@ function App() {
   // State to hold the current page's header configuration
   const [pageConfig, setPageConfig] = useState<PageConfig>({ title: 'Loading...' });
 
+  // Create a theme instance based on the current mode
   const theme = createTheme({
     palette: {
       mode,
       primary: {
-        main: mode === 'dark' ? '#1E3A8A' : '#3B82F6', // Example blue colors
+        // Using a dark blue for the header as a base
+        main: mode === 'dark' ? '#1E40AF' : '#2563EB',
       },
+      background: {
+        default: mode === 'dark' ? '#111827' : '#F9FAFB',
+        paper: mode === 'dark' ? '#1F2937' : '#FFFFFF',
+      },
+      text: {
+          primary: mode === 'dark' ? '#F9FAFB' : '#111827',
+          secondary: mode === 'dark' ? '#9CA3AF' : '#6B7280',
+      }
     },
   });
 
@@ -37,7 +47,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <MaturityProvider>
-        {/* The single global Header */}
+        {/* The single global Header receives its configuration from App's state */}
         <Header
           title={pageConfig.title}
           mode={mode}
@@ -46,7 +56,7 @@ function App() {
           onExport={pageConfig.onExport}
         />
         <Routes>
-          {/* We pass the 'setPageConfig' function to each page */}
+          {/* Each page is given the function to set the header's configuration */}
           <Route path="/" element={<TabbedDiagnosticPage setPageConfig={setPageConfig} />} />
           <Route path="/prioritisation" element={<PrioritisationPage setPageConfig={setPageConfig} />} />
         </Routes>
