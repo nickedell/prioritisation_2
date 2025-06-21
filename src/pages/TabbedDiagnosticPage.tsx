@@ -2,13 +2,12 @@
 
 import React, { useContext, useMemo, useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { diagnosticData, DiagnosticItem } from '../constants/diagnostic.ts';
-import { MaturityContext } from '../context/MaturityContext.tsx';
-import BarChartComponent from '../components/BarChart.tsx';
-import DiagnosticQuestionList from '../components/DiagnosticQuestionList.tsx';
-import { PageConfig } from '../App.tsx'; // Import the config type
+import { diagnosticData, DiagnosticItem } from '../constants/diagnostic';
+import { MaturityContext } from '../context/MaturityContext';
+import BarChartComponent from '../components/BarChart';
+import DiagnosticQuestionList from '../components/DiagnosticQuestionList';
+import { PageConfig } from '../App';
 
-// Component now accepts setPageConfig as a prop
 interface DiagnosticPageProps {
   setPageConfig: (config: PageConfig) => void;
 }
@@ -17,15 +16,7 @@ type Tab = 'STRATEGY' | 'IMPLEMENTATION' | 'SERVICE & VALUE DELIVERY' | 'SUMMARY
 
 const TabbedDiagnosticPage: React.FC<DiagnosticPageProps> = ({ setPageConfig }) => {
 	const maturityContext = useContext(MaturityContext);
-	
-	// --- ADD THESE THREE LINES FOR DEBUGGING ---
-	console.log("Maturity Context:", maturityContext);
-	console.log("Scores object:", maturityContext?.scores);
-	console.log("Diagnostic Data array:", diagnosticData);
-	// -----------------------------------------
-	
 	const [activeTab, setActiveTab] = useState<Tab>('STRATEGY');
-	// Removed local state for darkMode, title etc. as it's now handled globally or passed in
 
 	// --- Import/Export Logic ---
 	const handleExport = useCallback(() => {
@@ -45,38 +36,67 @@ const TabbedDiagnosticPage: React.FC<DiagnosticPageProps> = ({ setPageConfig }) 
 		onImport: handleImport,
 		onExport: handleExport,
 	  });
-	  // Clear the config when the component unmounts
 	  return () => setPageConfig({ title: '' });
 	}, [setPageConfig, handleImport, handleExport]);
 
-
-	if (!maturityContext) { return <div>Loading...</div>; }
+	if (!maturityContext) { 
+		return <div>Loading Context...</div>; 
+	}
 	const { scores, updateScore } = maturityContext;
 
-	// ... (rest of the component logic remains the same)
-	const chartData = useMemo(() => { /* ... */ }, [scores, activeTab]);
-	const visibleQuestions = useMemo(() => { /* ... */ }, [activeTab]);
-	const handleSelectScore = (dimensionName: string, score: number) => { updateScore(dimensionName, score); };
+	// --- CORRECTED LOGIC ---
+	// This now correctly calculates the data for the chart based on the active tab.
+	const chartData = useMemo(() => {
+		const category = activeTab !== 'SUMMARY' ? activeTab : '';
+		return diagnosticData
+			.filter(item => item && (activeTab === 'SUMMARY' || item.category === category))
+			.map(item => ({
+				name: item.name, // The barchart expects a 'name' property
+				score: scores[item.name] || 0,
+			}));
+	}, [scores, activeTab]);
+	
+	// This now correctly calculates the questions to display based on the active tab.
+	const visibleQuestions = useMemo(() => {
+		if (activeTab === 'SUMMARY') return []; // Don't show question list on summary tab
+		return diagnosticData.filter(item => item && item.category === activeTab);
+	}, [activeTab]);
+	// --- END CORRECTION ---
+
+	const handleSelectScore = (dimensionName: string, score: number) => { 
+		updateScore(dimensionName, score); 
+	};
+
+	const tabClasses = (tabName: Tab) => 
+		`px-4 py-2 font-semibold rounded-t-lg transition-colors border-b-2 ${
+			activeTab === tabName 
+			? 'border-blue-500' 
+			: 'border-transparent hover:border-gray-500'
+		}`;
 
 	return (
-		// The outer div with dark mode class is no longer needed here
 		<div className="max-w-7xl mx-auto p-6">
-			{/* The old local Header component is now removed */}
+			<div className="flex border-b border-gray-700 mb-4">
+				<button className={tabClasses('STRATEGY')} onClick={() => setActiveTab('STRATEGY')}>Strategy</button>
+				<button className={tabClasses('IMPLEMENTATION')} onClick={() => setActiveTab('IMPLEMENTATION')}>Implementation</button>
+				<button className={tabClasses('SERVICE & VALUE DELIVERY')} onClick={() => setActiveTab('SERVICE & VALUE DELIVERY')}>Service & Value Delivery</button>
+				<button className={tabClasses('SUMMARY')} onClick={() => setActiveTab('SUMMARY')}>Summary</button>
+			</div>
 			
-			<div className="mt-4">
-				{/* ... The rest of your JSX for tabs, charts, and questions ... */}
-				{/* (This part of your code remains unchanged) */}
+			<div className="p-6 bg-gray-800 rounded-lg border border-gray-700">
+				<BarChartComponent data={chartData} />
 			</div>
 
 			<DiagnosticQuestionList
 				items={visibleQuestions}
 				scores={scores}
 				updateScore={handleSelectScore}
-				darkMode={true} // Or pass this down from App if needed
 			/>
 			
 			<div className="flex justify-end mt-8">
-				<Link to="/prioritisation">Proceed to Prioritisation Tool →</Link>
+				<Link to="/prioritisation" className="px-3 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600">
+					Proceed to Prioritisation Tool →
+				</Link>
 			</div>
 		</div>
 	);
