@@ -17,6 +17,13 @@ type Tab = 'STRATEGY' | 'IMPLEMENTATION' | 'SERVICE & VALUE DELIVERY' | 'SUMMARY
 
 const TabbedDiagnosticPage: React.FC<DiagnosticPageProps> = ({ setPageConfig }) => {
 	const maturityContext = useContext(MaturityContext);
+	
+	// --- ADD THESE THREE LINES FOR DEBUGGING ---
+	console.log("Maturity Context:", maturityContext);
+	console.log("Scores object:", maturityContext?.scores);
+	console.log("Diagnostic Data array:", diagnosticData);
+	// -----------------------------------------
+	
 	const [activeTab, setActiveTab] = useState<Tab>('STRATEGY');
 	// Removed local state for darkMode, title etc. as it's now handled globally or passed in
 
